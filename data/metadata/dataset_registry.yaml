@@ -1,6 +1,6 @@
 # ==============================================================================
 # SIH 2026 Fertilizer Recommendation System
-# TRACK A: DATASET REGISTRY
+# TRACK A & B: DATASET REGISTRY
 # ==============================================================================
 # Location: data/metadata/dataset_registry.yaml
 # Single Source of Truth for all physical datasets, files, and tables.
@@ -167,3 +167,47 @@ datasets:
     verification_status: "verified"
     license: "Subscription / Copyright FAI"
     access_status: "Print/Member subscription distribution by The Fertiliser Association of India"
+
+  DS-ICAR-PAU-LTFE-RICE-WHEAT-2021:
+    dataset_id: "DS-ICAR-PAU-LTFE-RICE-WHEAT-2021"
+    source_id: "SRC-ICAR-PAU-LTFE-RICE-WHEAT-2021"
+    original_filename: "sharma_dheri_saini_2021_pau_ltfe_rice_wheat.pdf"
+    local_path: "data/raw/icar/sharma_dheri_saini_2021_pau_ltfe_rice_wheat.pdf"
+    format: "pdf_table"
+    raw_source_status: "acquired"
+    checksum: "c7c61744905f6c23d69ad04b9187edd4e239fafdb9fb2b149930715dfde15879"
+    retrieval_date: "2026-08-18"
+    processing_script: "backend/app/ingestion/readers.py"
+    processing_version: "1.0.0"
+    geographic_scope: "Research Farm, PAU Ludhiana, Punjab (Inceptisol / Typic Ustochrept)"
+    crop: "rice"
+    secondary_crop: "wheat"
+    variables:
+      - "fertilizer_N"
+      - "fertilizer_P2O5"
+      - "fertilizer_K2O"
+      - "FYM_dose"
+      - "observed_grain_yield_Mg_ha"
+      - "observed_straw_yield_Mg_ha"
+      - "grain_N_content_pct"
+      - "straw_N_content_pct"
+      - "grain_N_uptake_kg_ha"
+      - "straw_N_uptake_kg_ha"
+      - "total_N_uptake_kg_ha"
+    units:
+      fertilizer_N: "kg N/ha"
+      fertilizer_P2O5: "kg P2O5/ha"
+      fertilizer_K2O: "kg K2O/ha"
+      FYM_dose: "t/ha"
+      observed_grain_yield_Mg_ha: "Mg/ha"
+      observed_straw_yield_Mg_ha: "Mg/ha"
+      grain_N_content_pct: "%"
+      straw_N_content_pct: "%"
+      grain_N_uptake_kg_ha: "kg N/ha"
+      straw_N_uptake_kg_ha: "kg N/ha"
+      total_N_uptake_kg_ha: "kg N/ha"
+    extraction_method: "Manual double transcription from Tables 1 & 2 (pp. 1178-1179) and Materials and Methods (p. 1175), verified against raw ICAR PDF"
+    missingness_notes: "Treatment-level pooled means across 3 replications for 6 treatments. Initial plot-level soil test P and K values are not reported."
+    verification_status: "verified"
+    license: "CC BY-NC-SA 4.0"
+    access_status: "Openly accessible via ICAR e-pubs"

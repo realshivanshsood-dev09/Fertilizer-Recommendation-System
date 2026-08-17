@@ -1,0 +1,112 @@
+# ==============================================================================
+# SIH 2026 Fertilizer Recommendation System
+# TRACK B2: ML STUDY REGISTRY ENTRY — PAU LTFE (SHARMA ET AL., 2021)
+# ==============================================================================
+# File: ml/registry/sharma_2021_ltfe_rice_wheat_study.yaml
+#
+# Assessment of study suitability for Track B fertilizer response modeling.
+# ==============================================================================
+
+study_id: "STUDY-PAU-LTFE-RICE-WHEAT-2021"
+source_id: "SRC-ICAR-PAU-LTFE-RICE-WHEAT-2021"
+dataset_id: "DS-ICAR-PAU-LTFE-RICE-WHEAT-2021"
+citation: "Sharma, A., Dheri, G. S., & Saini, S. P. (2021). Indian Journal of Agricultural Sciences 91(8): 1174–1179."
+doi: "10.56093/ijas.v91i8.115807"
+url: "https://epubs.icar.org.in/index.php/IJAgS/article/view/115807"
+local_pdf_path: "data/raw/icar/sharma_dheri_saini_2021_pau_ltfe_rice_wheat.pdf"
+raw_pdf_checksum: "c7c61744905f6c23d69ad04b9187edd4e239fafdb9fb2b149930715dfde15879"
+
+experimental_characterization:
+  institution: "Punjab Agricultural University, Ludhiana"
+  location: "Research Farm, PAU Ludhiana, Punjab"
+  experiment_type: "Long Term Fertilizer Experiment (LTFE) active since 1999"
+  cropping_system: "rice-wheat"
+  crops:
+    rice:
+      cultivar: "PR 126"
+      season: "kharif"
+      year: 2018
+    wheat:
+      cultivar: "Unnat PBW 550"
+      season: "rabi"
+      year: 2019
+  soil_order: "Inceptisol (Typic Ustochrept)"
+  soil_texture: "sandy loam"
+  experimental_design: "Randomized Complete Block Design (RCBD)"
+  replications: 3
+  plot_dimensions_m: "12 m × 9 m"
+  plot_size_m2: 108
+
+treatments:
+  - id: "T1"
+    name: "Control"
+    description: "Unfertilized control"
+    fertilizer_n: 0.0
+    fertilizer_p2o5: 0.0
+    fertilizer_k2o: 0.0
+    organic_amendment: null
+  - id: "T2"
+    name: "100% NPK"
+    description: "State general recommended dose (GRD)"
+    rice_dose_kg_ha: {N: 120.0, P2O5: 30.0, K2O: 30.0}
+    wheat_dose_kg_ha: {N: 120.0, P2O5: 60.0, K2O: 30.0}
+    organic_amendment: null
+  - id: "T3"
+    name: "150% NPK"
+    description: "Super-optimal chemical fertilizer"
+    rice_dose_kg_ha: {N: 180.0, P2O5: 45.0, K2O: 45.0}
+    wheat_dose_kg_ha: {N: 180.0, P2O5: 90.0, K2O: 45.0}
+    organic_amendment: null
+  - id: "T4"
+    name: "100% NPK + FYM"
+    description: "100% NPK plus Farmyard Manure at 10 t/ha before rice"
+    rice_dose_kg_ha: {N: 120.0, P2O5: 30.0, K2O: 30.0}
+    wheat_dose_kg_ha: {N: 120.0, P2O5: 60.0, K2O: 30.0}
+    organic_amendment: "FYM 10 t/ha"
+  - id: "T5"
+    name: "100% NPK + GM"
+    description: "100% NPK plus Green Manuring (Sesbania aculeata) before rice"
+    rice_dose_kg_ha: {N: 120.0, P2O5: 30.0, K2O: 30.0}
+    wheat_dose_kg_ha: {N: 120.0, P2O5: 60.0, K2O: 30.0}
+    organic_amendment: "Green Manure (Sesbania)"
+  - id: "T6"
+    name: "100% NPK + SI"
+    description: "100% NPK plus Straw Incorporation before crop establishment"
+    rice_dose_kg_ha: {N: 120.0, P2O5: 30.0, K2O: 30.0}
+    wheat_dose_kg_ha: {N: 120.0, P2O5: 60.0, K2O: 30.0}
+    organic_amendment: "Crop Straw"
+
+reported_data_granularity:
+  granularity: "treatment_mean"
+  raw_replicate_plots_published: false
+  total_processed_observations: 12 # 6 treatments x 2 crops
+  measured_variables:
+    soil:
+      - "available_N_kg_ha (alkaline KMnO4)"
+      - "ammoniacal_N_NH4_mg_kg"
+      - "nitrate_N_NO3_mg_kg"
+      - "total_N_mg_kg"
+    plant:
+      - "dry_matter_accumulation_Mg_ha"
+      - "plant_N_content_pct (grain and straw)"
+      - "total_N_uptake_kg_ha (grain and straw)"
+      - "grain_yield_Mg_ha"
+      - "straw_yield_Mg_ha"
+
+ml_assessment:
+  training_readiness: "treatment_mean_validation_only"
+  suitable_for_training: false
+  suitable_for_validation: true
+  role: "validation_benchmark"
+  reason: >
+    The publication provides pooled 3-replication treatment means for 6 treatments (12 total observation rows
+    across rice and wheat) rather than individual plot-level rows. It must NOT be converted into synthetic plot-level observations.
+  validation_utility: >
+    Excellent for verifying model behavior under long-term continuous nutrient management,
+    organic manure supplementation (FYM / Green Manure), and chemical NPK over-fertilization (150%).
+  stcr_compatibility:
+    STCR_N: null
+    STCR_P2O5: null
+    STCR_K2O: null
+    STCR_applicability_match: false
+    reason: "Fixed GRD fertilizer trial, not targeted-yield prescription experiment; initial soil test P and K unstated."

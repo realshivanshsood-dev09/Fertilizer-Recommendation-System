@@ -1,0 +1,113 @@
+# ==============================================================================
+# SIH 2026 Fertilizer Recommendation System
+# TRACK B: PROCESSED EXPERIMENTAL DATASET — PAU LTFE (SHARMA ET AL., 2021)
+# ==============================================================================
+# File: data/processed/sharma_2021_ltfe_rice_wheat.yaml
+#
+# Primary Citation:
+#   Sharma, A., Dheri, G. S., & Saini, S. P. (2021).
+#   Long-term nutrient management affects nitrogen dynamics and crop yield in
+#   rice-wheat system.
+#   The Indian Journal of Agricultural Sciences, 91(8), 1174–1179.
+#   DOI: 10.56093/ijas.v91i8.115807
+# ==============================================================================
+
+provenance:
+  source_id: "SRC-ICAR-PAU-LTFE-RICE-WHEAT-2021"
+  dataset_id: "DS-ICAR-PAU-LTFE-RICE-WHEAT-2021"
+  study_id: "STUDY-PAU-LTFE-RICE-WHEAT-2021"
+  raw_file: "data/raw/icar/sharma_dheri_saini_2021_pau_ltfe_rice_wheat.pdf"
+  checksum_sha256: "c7c61744905f6c23d69ad04b9187edd4e239fafdb9fb2b149930715dfde15879"
+  extraction_method: "Manual double transcription from Tables 1 & 2 (pp. 1178-1179) and Materials and Methods (p. 1175)"
+  data_granularity: "treatment_mean"
+  verification_status: "verified"
+
+experiment_details:
+  institution: "Punjab Agricultural University, Ludhiana, Punjab, India"
+  location: "Research Farm, PAU Ludhiana"
+  state: "Punjab"
+  district: "Ludhiana"
+  initiated_year: 1999
+  cropping_system: "rice-wheat"
+  soil:
+    order: "Inceptisol"
+    subgroup: "Typic Ustochrept"
+    texture: "sandy loam"
+  layout:
+    design: "Randomized Complete Block Design (RCBD)"
+    replications: 3
+    plot_dimensions_m: "12 m × 9 m"
+    plot_size_m2: 108
+
+crops:
+  rice:
+    cultivar: "PR 126"
+    season: "kharif"
+    year: 2018
+    table_reference: "Table 1 (p. 1178)"
+    general_recommended_dose_kg_ha:
+      N: 120.0
+      P2O5: 30.0 # 13 kg P/ha
+      K2O: 30.0  # 24 kg K/ha
+  wheat:
+    cultivar: "Unnat PBW 550"
+    season: "rabi"
+    year: 2019 # 2018-19
+    table_reference: "Table 2 (p. 1179)"
+    general_recommended_dose_kg_ha:
+      N: 120.0
+      P2O5: 60.0 # 27 kg P/ha
+      K2O: 30.0  # 24 kg K/ha
+
+treatments:
+  T1:
+    name: "Control"
+    fertilizer_N: 0.0
+    fertilizer_P2O5: 0.0
+    fertilizer_K2O: 0.0
+    organic: "None"
+  T2:
+    name: "100% NPK"
+    fertilizer_N: 120.0
+    fertilizer_P2O5: 30.0 # rice / 60.0 wheat
+    fertilizer_K2O: 30.0
+    organic: "None"
+  T3:
+    name: "150% NPK"
+    fertilizer_N: 180.0
+    fertilizer_P2O5: 45.0 # rice / 90.0 wheat
+    fertilizer_K2O: 45.0
+    organic: "None"
+  T4:
+    name: "100% NPK + FYM"
+    fertilizer_N: 120.0
+    fertilizer_P2O5: 30.0 # rice / 60.0 wheat
+    fertilizer_K2O: 30.0
+    organic: "Farmyard Manure (FYM) @ 10 t/ha before rice"
+  T5:
+    name: "100% NPK + GM"
+    fertilizer_N: 120.0
+    fertilizer_P2O5: 30.0 # rice / 60.0 wheat
+    fertilizer_K2O: 30.0
+    organic: "Green Manuring with Sesbania aculeata before rice"
+  T6:
+    name: "100% NPK + SI"
+    fertilizer_N: 120.0
+    fertilizer_P2O5: 30.0 # rice / 60.0 wheat
+    fertilizer_K2O: 30.0
+    organic: "Straw Incorporation before crop sowing/transplanting"
+
+ml_classification:
+  training_suitable: false
+  role: "validation_benchmark"
+  reason: >
+    The publication reports treatment means across 3 replications (6 rows per crop), not
+    independent plot-level observations. Synthetic replication rows must NOT be created.
+  stcr_compatibility:
+    STCR_N: null
+    STCR_P2O5: null
+    STCR_K2O: null
+    reason: >
+      LTFE applies fixed regional recommended doses (GRD) rather than STCR target-yield equations.
+      Initial plot-level soil test P and K are not reported; hence deterministic STCR equations
+      are not applicable to these observations.

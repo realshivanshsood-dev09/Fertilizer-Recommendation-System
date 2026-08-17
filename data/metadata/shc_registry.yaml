@@ -1,0 +1,166 @@
+# ==============================================================================
+# SIH 2026 Fertilizer Recommendation System
+# TRACK B1: SOIL HEALTH CARD (SHC) REGISTRY & DATA ARCHITECTURE
+# ==============================================================================
+# File: data/metadata/shc_registry.yaml
+# Single Source of Truth for Government Soil Health Card data sources and schema.
+# ==============================================================================
+
+source:
+  source_id: "SRC-GOV-SHC-DAC-NATIONAL"
+  title: "Soil Health Card Portal & National Soil Nutrient Analysis"
+  publisher: "Ministry of Agriculture & Farmers Welfare, Government of India"
+  department: "Department of Agriculture and Farmers Welfare (DA&FW)"
+  source_url: "https://soilhealth.dac.gov.in/"
+  api_guidelines_url: "https://soilhealth.dac.gov.in/files/SHC_API_Integration_Guidelines.pdf"
+  data_portal_url: "https://indiadataportal.com/"
+  retrieval_date: "2026-08-18"
+  dataset_version: "2023-2025_v1"
+  license: "Government Open Data License - India (GODL) / Public Sector Information"
+  access_status: "Open government access; bulk download via India Data Portal or official state-filtered export"
+
+target_region:
+  state: "Punjab"
+  state_code: "03"
+  districts:
+    - district_name: "Bathinda"
+      census_code: "035"
+    - district_name: "Mansa"
+      census_code: "036"
+    - district_name: "Faridkot"
+      census_code: "034"
+    - district_name: "Moga"
+      census_code: "033"
+    - district_name: "Sri Muktsar Sahib"
+      census_code: "037"
+      alternative_names: ["Muktsar"]
+
+schema:
+  administrative_fields:
+    state:
+      type: "string"
+      description: "State name"
+      example: "Punjab"
+    district:
+      type: "string"
+      description: "Official administrative district name"
+      example: "Bathinda"
+    block:
+      type: "string"
+      description: "Sub-district / Block / Tehsil name"
+      example: "Talwandi Sabo"
+    village:
+      type: "string"
+      description: "Village / Gram Panchayat name"
+      example: "Rama"
+    cycle_id:
+      type: "string"
+      description: "SHC Scheme Cycle (Cycle 1: 2015-17, Cycle 2: 2017-19, Model Village: 2019-20, Ongoing)"
+    survey_year:
+      type: "integer"
+      description: "Year of soil sample collection and analysis"
+      unit: "year"
+
+  soil_properties:
+    pH:
+      type: "float"
+      unit: "unitless"
+      method: "1:2.5 or 1:2 soil-water suspension"
+      valid_range: [4.0, 10.5]
+    EC:
+      type: "float"
+      unit: "dS/m"
+      method: "Conductivity bridge, 1:2 soil-water"
+      valid_range: [0.0, 20.0]
+    OC:
+      type: "float"
+      unit: "%"
+      method: "Walkley and Black (1934) rapid titration"
+      valid_range: [0.01, 5.0]
+
+  macronutrients:
+    N:
+      type: "float"
+      unit: "kg/ha"
+      method: "Alkaline potassium permanganate (KMnO4) extractable N (Subbiah & Asija 1956)"
+      valid_range: [20.0, 1000.0]
+      rating_classes:
+        low: "< 280 kg/ha"
+        medium: "280 - 560 kg/ha"
+        high: "> 560 kg/ha"
+    P:
+      type: "float"
+      unit: "kg/ha"
+      form: "P2O5 / available P"
+      method: "0.5M NaHCO3 extractable P (Olsen et al. 1954) for neutral-alkaline soils"
+      valid_range: [1.0, 300.0]
+      rating_classes:
+        low: "< 10 kg P/ha (< 22.9 kg P2O5/ha)"
+        medium: "10 - 24.6 kg P/ha (22.9 - 56.3 kg P2O5/ha)"
+        high: "> 24.6 kg P/ha (> 56.3 kg P2O5/ha)"
+    K:
+      type: "float"
+      unit: "kg/ha"
+      form: "K2O / available K"
+      method: "Neutral 1N ammonium acetate (NH4OAc) extractable K (Merwin & Peech 1950)"
+      valid_range: [10.0, 1500.0]
+      rating_classes:
+        low: "< 118 kg K/ha (< 141.6 kg K2O/ha)"
+        medium: "118 - 280 kg K/ha (141.6 - 336 kg K2O/ha)"
+        high: "> 280 kg K/ha (> 336 kg K2O/ha)"
+
+  secondary_and_micronutrients:
+    S:
+      type: "float"
+      unit: "mg/kg (ppm)"
+      method: "0.15% CaCl2 extractable / turbidimetric"
+    Zn:
+      type: "float"
+      unit: "mg/kg (ppm)"
+      method: "DTPA extractable (Lindsay & Norvell 1978)"
+    Fe:
+      type: "float"
+      unit: "mg/kg (ppm)"
+      method: "DTPA extractable"
+    Mn:
+      type: "float"
+      unit: "mg/kg (ppm)"
+      method: "DTPA extractable"
+    Cu:
+      type: "float"
+      unit: "mg/kg (ppm)"
+      method: "DTPA extractable"
+    B:
+      type: "float"
+      unit: "mg/kg (ppm)"
+      method: "Hot water extractable (Berger & Truog 1939)"
+
+privacy_and_security_assessment:
+  personally_identifiable_information:
+    policy: "STRICT_EXCLUSION"
+    excluded_fields:
+      - "farmer_name"
+      - "father_name"
+      - "mobile_number"
+      - "aadhaar_number"
+      - "bank_account_number"
+      - "khasra_number"
+      - "dag_number"
+      - "survey_number"
+      - "individual_household_id"
+    anonymization_strategy: "Spatial aggregation to Village/Block level or cryptographic hash of sample registration code without personal keys"
+
+ingestion_protocol:
+  download_strategy: "Targeted State/District export via official dashboard or filtered IDP partition"
+  raw_storage_dir: "data/raw/government/shc/"
+  processed_storage_dir: "data/processed/shc/"
+  validation_rules:
+    - "Drop rows with missing district or state outside Punjab"
+    - "Validate nutrient numeric ranges against agronomic physical limits"
+    - "Flag extreme outliers (> 3 standard deviations from block median)"
+    - "Preserve unit declarations explicitly (kg/ha vs mg/kg)"
+
+limitations:
+  - "Soil samples represent composite sampling per grid (2.5 ha irrigated / 10 ha rainfed), not micro-plot resolution"
+  - "Historical sampling dates in early cycles were often recorded at year or cycle granularity"
+  - "Laboratory quality control varies across district testing facilities"

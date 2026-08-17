@@ -1,0 +1,203 @@
+# ==============================================================================
+# SIH 2026 Fertilizer Recommendation System
+# TRACK B: UNIFIED DATASET ARCHITECTURE & ML SPECIFICATION
+# ==============================================================================
+# File: data/metadata/track_b_dataset_schema.yaml
+#
+# Definitive architecture for Track B data classes (B1, B2, B3), ML target
+# formulations, provenance tracking, and grouped validation policy.
+# ==============================================================================
+
+architecture_overview:
+  description: >
+    Track B structures empirical and administrative data to support scientific validation
+    and machine-learned residual adjustments. It strictly separates soil background states (B1),
+    experimental response trials (B2), and deterministic STCR baselines (B3).
+
+data_classes:
+  B1_soil_state:
+    description: "Soil Health Card and regional soil survey datasets (environmental priors and test results)."
+    primary_role: "Feature inputs and spatial domain-of-validity boundaries."
+    suitable_for_response_training: false
+    sources: ["Soil Health Card Portal (DAC&FW)", "PAU Soil Surveys", "District Soil Testing Labs"]
+
+  B2_field_trial_response:
+    description: "Controlled experimental field trials containing paired soil test, fertilizer dose, and crop yield responses."
+    primary_role: "Training and evaluating ML residual models and validation benchmarks."
+    suitable_for_response_training: true # Only when plot-level or rigorously documented replicate data exists
+    granularity_levels:
+      - "plot_level"       # Individual measured experimental plot (highest fidelity)
+      - "replicate_level"   # Replicate block observation
+      - "treatment_mean"    # Arithmetic mean across replicates for a specific treatment
+      - "site_mean"         # Mean across experimental sites
+      - "pooled_mean"       # Multi-year or multi-location pooled mean
+
+  B3_stcr_baseline:
+    description: "Deterministic fertilizer nutrient calculation derived from Track A authoritative equations."
+    primary_role: "Reference baseline against which ML residual adjustments are learned."
+    formula_template: "D_STCR = max(0, (a * Target_Yield - b * Soil_Test) / FUE)"
+
+track_b_unified_observation_schema:
+  provenance_fields:
+    study_id:
+      type: "string"
+      description: "Unique identifier for the research experiment / source study"
+      example: "STUDY-PAU-WHEAT-STCR-2022"
+    source_id:
+      type: "string"
+      description: "Foreign key to source_registry.yaml"
+      example: "SRC-ICAR-PAU-WHEAT-STCR-2022"
+    observation_id:
+      type: "string"
+      description: "Unique identifier for the specific observation row"
+      example: "OBS-PAU-WHEAT-2022-T1-R1"
+    data_granularity:
+      type: "string"
+      enum: ["plot_level", "replicate_level", "treatment_mean", "site_mean", "pooled_mean"]
+      description: "Exact aggregation level of the observation row"
+    treatment_id:
+      type: "string"
+      description: "Experimental treatment code"
+      example: "T1"
+    replication:
+      type: "integer"
+      nullable: true
+      description: "Replication number (null if treatment mean)"
+
+  environmental_and_crop_fields:
+    crop:
+      type: "string"
+      enum: ["wheat", "rice", "cotton"]
+    cultivar:
+      type: "string"
+      nullable: true
+      example: "HD3086"
+    season:
+      type: "string"
+      enum: ["kharif", "rabi", "zaid"]
+    year:
+      type: "integer"
+      example: 2021
+    state:
+      type: "string"
+      default: "Punjab"
+    district:
+      type: "string"
+      example: "Bathinda"
+    block:
+      type: "string"
+      nullable: true
+    soil_type:
+      type: "string"
+      example: "sandy loam"
+    soil_order:
+      type: "string"
+      example: "Inceptisol (Typic Ustochrept)"
+    soil_depth_cm:
+      type: "string"
+      default: "0-15"
+
+  initial_soil_measurements:
+    initial_soil_N:
+      type: "float"
+      unit: "kg/ha"
+      method: "alkaline KMnO4"
+    initial_soil_P:
+      type: "float"
+      unit: "kg/ha"
+      method: "0.5M NaHCO3 (Olsen)"
+    initial_soil_K:
+      type: "float"
+      unit: "kg/ha"
+      method: "1N neutral NH4OAc"
+    initial_pH:
+      type: "float"
+      unit: "unitless"
+    initial_EC:
+      type: "float"
+      unit: "dS/m"
+    initial_OC:
+      type: "float"
+      unit: "%"
+
+  management_and_fertilizer_inputs:
+    fertilizer_N:
+      type: "float"
+      unit: "kg N/ha"
+    fertilizer_P2O5:
+      type: "float"
+      unit: "kg P2O5/ha"
+    fertilizer_K2O:
+      type: "float"
+      unit: "kg K2O/ha"
+    FYM_dry_weight:
+      type: "float"
+      unit: "t/ha"
+      nullable: true
+    FYM_N:
+      type: "float"
+      unit: "kg N/ha"
+      nullable: true
+
+  yield_and_uptake_outcomes:
+    target_yield:
+      type: "float"
+      unit: "q/ha or Mg/ha"
+      nullable: true
+    observed_grain_yield:
+      type: "float"
+      unit: "Mg/ha (t/ha)"
+    observed_straw_yield:
+      type: "float"
+      unit: "Mg/ha (t/ha)"
+      nullable: true
+    total_N_uptake:
+      type: "float"
+      unit: "kg N/ha"
+      nullable: true
+    total_P_uptake:
+      type: "float"
+      unit: "kg P/ha"
+      nullable: true
+    total_K_uptake:
+      type: "float"
+      unit: "kg K/ha"
+      nullable: true
+
+  stcr_baseline_comparison:
+    STCR_N:
+      type: "float"
+      unit: "kg N/ha"
+      nullable: true
+    STCR_P2O5:
+      type: "float"
+      unit: "kg P2O5/ha"
+      nullable: true
+    STCR_K2O:
+      type: "float"
+      unit: "kg K2O/ha"
+      nullable: true
+    STCR_applicability_match:
+      type: "boolean"
+      description: "True if experiment location/soil matches Track A verified STCR equation boundaries"
+
+ml_formulation_policy:
+  architecture: "Hybrid STCR + Bounded ML Residual Correction"
+  candidate_targets:
+    target_option_1:
+      name: "Fertilizer Dose Adjustment (Delta_D)"
+      formula: "Delta_D = D_applied_optimal - D_STCR"
+      rationale: "Learns site-specific agronomic adjustments (e.g. organic manure offset, extreme pH damping) without discarding deterministic STCR."
+      safety_guardrail: "Clip Delta_D to [-30%, +30%] of STCR base recommendation"
+    target_option_2:
+      name: "Yield Residual (Delta_Y)"
+      formula: "Delta_Y = Y_observed - Y_STCR_expected"
+      rationale: "Estimates expected yield deviations under non-standard weather or management conditions."
+
+validation_strategy:
+  grouping_strategy: "GroupKFold by study_id"
+  prohibition: "Random row-level splitting is STRICTLY PROHIBITED."
+  justification: >
+    Observations originating from the same research experiment share common soil pedogenesis,
+    weather history, cultivar genotype, and analytical instruments. Random splitting results in
+    severe data leakage and falsely optimistic validation metrics.

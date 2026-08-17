@@ -104,3 +104,28 @@ sources:
     verification_status: "verified"
     verifier: "Track A Ingestion Pipeline"
     notes: "Assesses multi-location field performance and economics of pre-existing STCR target-yield equations in farmer fields across Punjab. This is an agronomic field-verification study, NOT the original single-nutrient STCR calibration derivation. Raw PDF is behind publisher subscription (FAI) and not openly available in open-access repos."
+
+  SRC-ICAR-PAU-LTFE-RICE-WHEAT-2021:
+    source_id: "SRC-ICAR-PAU-LTFE-RICE-WHEAT-2021"
+    institution: "Punjab Agricultural University, Ludhiana, Punjab, India"
+    source_type: "university"
+    publisher: "Indian Council of Agricultural Research"
+    title: "Long-term nutrient management affects nitrogen dynamics and crop yield in rice-wheat system"
+    publication: "The Indian Journal of Agricultural Sciences, Vol. 91, No. 8, pp. 1174–1179"
+    authors:
+      - "A Sharma"
+      - "G S Dheri"
+      - "S P Saini"
+    publication_year: 2021
+    doi: "10.56093/ijas.v91i8.115807"
+    url: "https://epubs.icar.org.in/index.php/IJAgS/article/view/115807"
+    retrieval_date: "2026-08-18"
+    geographic_scope: "Research Farm, Punjab Agricultural University, Ludhiana, Punjab (sandy loam, Inceptisol / Typic Ustochrept)"
+    crop: "rice"
+    secondary_crop: "wheat"
+    data_type: "field_trial"
+    license: "CC BY-NC-SA 4.0"
+    access_status: "Openly accessible via ICAR e-pubs"
+    verification_status: "verified"
+    verifier: "Track B Ingestion Pipeline"
+    notes: "Long Term Fertilizer Experiment (LTFE) in progress since 1999 at PAU Ludhiana evaluating 6 fertilizer/manure treatments in rice (PR 126)-wheat (Unnat PBW 550) system across 3 replications. Published data provides treatment means for crop yield, periodic N uptake, and soil N fractions."

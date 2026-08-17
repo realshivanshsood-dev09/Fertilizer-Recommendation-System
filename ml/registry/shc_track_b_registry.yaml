@@ -1,0 +1,72 @@
+# ==============================================================================
+# SIH 2026 Fertilizer Recommendation System
+# TRACK B: ML REGISTRY — SOIL HEALTH CARD (B1)
+# ==============================================================================
+# File: ml/registry/shc_track_b_registry.yaml
+#
+# Assessment of Soil Health Card (B1) data for Machine Learning models.
+# ==============================================================================
+
+dataset_id: "DS-GOV-SHC-PUNJAB-MALWA"
+source_id: "SRC-GOV-SHC-DAC-NATIONAL"
+title: "Soil Health Card Data Layer — Malwa Region, Punjab"
+data_class: "B1_soil_state"
+
+ml_role:
+  training_candidate: false
+  feature_lookup_candidate: true
+  regional_prior_candidate: true
+  spatial_validation_candidate: true
+
+training_readiness: "not_applicable_for_response_training"
+suitable_for_training: false
+
+scientific_rationale:
+  reason: >
+    Soil Health Card records provide environmental state observations (initial soil nutrient concentrations,
+    pH, EC, OC) at village/grid levels. They do NOT contain paired controlled fertilizer application rates,
+    crop target yields, or observed harvest crop yields. Therefore, SHC data cannot serve as (X, y) training
+    samples for fertilizer response or yield prediction models.
+  proper_ml_utility:
+    - "Feature input generation: Serving as prior/baseline soil nutrient features when a farmer does not have a private lab test."
+    - "Regional clustering: Establishing district/block-level soil property distributions to define domain-of-validity bounds for ML inference."
+    - "Uncertainty quantification: Providing empirical variance estimates for soil test parameters across Malwa agro-ecological zones."
+
+privacy_compliance:
+  pii_status: "verified_excluded"
+  excluded_identifiers:
+    - "farmer_name"
+    - "phone"
+    - "aadhaar"
+    - "survey_number"
+  geographic_resolution: "village_level_centroid_only"
+
+feature_mapping:
+  soil_features:
+    - name: "soil_n_kmno4"
+      unit: "kg/ha"
+      source_column: "N"
+    - name: "soil_p_olsen"
+      unit: "kg/ha"
+      source_column: "P"
+    - name: "soil_k_nh4oac"
+      unit: "kg/ha"
+      source_column: "K"
+    - name: "soil_ph"
+      unit: "unitless"
+      source_column: "pH"
+    - name: "soil_ec"
+      unit: "dS/m"
+      source_column: "EC"
+    - name: "soil_oc"
+      unit: "%"
+      source_column: "OC"
+
+target_region_coverage:
+  state: "Punjab"
+  districts:
+    - "Bathinda"
+    - "Mansa"
+    - "Faridkot"
+    - "Moga"
+    - "Sri Muktsar Sahib"
