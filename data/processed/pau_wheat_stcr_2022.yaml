@@ -1,0 +1,140 @@
+# ==============================================================================
+# SIH 2026 Fertilizer Recommendation System
+# TRACK A: PROCESSED DATASET — PAU WHEAT STCR (2022)
+# ==============================================================================
+# File: data/processed/pau_wheat_stcr_2022.yaml
+#
+# Primary Citation:
+#   Singh, J., Mavi, M. S., & Saini, S. P. (2022).
+#   Fertilizer prescription for target yield of wheat (Triticum aestivum) in alluvial soils.
+#   The Indian Journal of Agricultural Sciences, 92(12), 1502–1505.
+#   DOI: 10.56093/ijas.v92i12.125137
+# ==============================================================================
+
+provenance:
+  source_id: "SRC-ICAR-PAU-WHEAT-STCR-2022"
+  dataset_id: "DS-ICAR-PAU-WHEAT-STCR-2022"
+  document_title: "Fertilizer prescription for target yield of wheat (Triticum aestivum) in alluvial soils"
+  publication: "The Indian Journal of Agricultural Sciences, 92(12): 1502–1505"
+  publisher: "Indian Council of Agricultural Research"
+  authors:
+    - "Jagdeep Singh"
+    - "M S Mavi"
+    - "Sat Pal Saini"
+  publication_year: 2022
+  doi: "10.56093/ijas.v92i12.125137"
+  url: "https://epubs.icar.org.in/index.php/IJAgS/article/view/125137"
+  table_reference: "Table 2: Nutrient requirement, response and fertilizer adjustment equations for wheat"
+  page_reference: "1504"
+  extraction_method: "Manual double transcription from Table 2, verified against raw ICAR PDF"
+  license: "Not explicitly stated"
+  access_status: "Openly accessible via ICAR e-pubs"
+  verification_status: "verified"
+  verifier: "Track A Ingestion Pipeline"
+  retrieved_date: "2026-08-18"
+
+scope:
+  crop: "wheat"
+  crop_scientific_name: "Triticum aestivum"
+  cultivar: "HD3086"
+  season: "rabi"
+  geographic_scope: "PAU Research Farm, Ludhiana, Punjab"
+  soil_type: "Alluvial sandy loam (Typic Ustochrepts)"
+  soil_depth_cm: "0–15"
+  cropping_system: "rice-wheat"
+
+soil_test_methods:
+  nitrogen:
+    method: "Alkaline KMnO4 extractable N"
+    citation: "Subbiah and Asija (1956)"
+    unit: "kg/ha"
+  phosphorus:
+    method: "0.5M NaHCO3 extractable P (Olsen-P)"
+    citation: "Olsen et al. (1954)"
+    unit: "kg/ha"
+  potassium:
+    method: "Neutral 1N ammonium acetate extractable K"
+    citation: "Merwin and Peech (1950)"
+    unit: "kg/ha"
+
+parameters:
+  nutrient_requirement_kg_per_q:
+    N: 2.06
+    P2O5: 0.78
+    K2O: 1.95
+    unit: "kg nutrient / q grain yield"
+
+  soil_contribution_pct:
+    N: 52.3
+    P2O5: 11.7
+    K2O: 20.2
+    unit: "%"
+
+  fertilizer_contribution_pct:
+    N: 54.0
+    P2O5: 50.0
+    K2O: 20.6
+    unit: "%"
+
+  rice_residue_contribution_pct:
+    N: 42.0
+    P2O5: 15.3
+    K2O: 26.0
+    unit: "%"
+
+equations:
+  description: >
+    T = target yield in q/ha.
+    SN, SP2O5, SK2O = corresponding initial soil test value in kg/ha.
+    RRN, RRP2O5, RRK2O = contribution from rice residue in kg/ha.
+    Fertilizer doses calculated in kg/ha of nutrient.
+
+  npk_alone:
+    N:
+      equation_string: "3.78*T - 0.96*SN"
+      a: 3.78
+      b: 0.96
+      target_yield_unit: "q/ha"
+      soil_unit: "kg/ha"
+      dose_unit: "kg N/ha"
+    P2O5:
+      equation_string: "1.54*T - 0.23*SP2O5"
+      a: 1.54
+      b: 0.23
+      target_yield_unit: "q/ha"
+      soil_unit: "kg/ha"
+      dose_unit: "kg P2O5/ha"
+    K2O:
+      equation_string: "0.95*T - 0.09*SK2O"
+      a: 0.95
+      b: 0.09
+      target_yield_unit: "q/ha"
+      soil_unit: "kg/ha"
+      dose_unit: "kg K2O/ha"
+
+  npk_plus_rice_residue:
+    residue_rate: "6 t/ha rice residue"
+    N:
+      equation_string: "3.78*T - 0.96*SN - 0.77*RRN"
+      a: 3.78
+      b: 0.96
+      c_residue: 0.77
+      target_yield_unit: "q/ha"
+      soil_unit: "kg/ha"
+      dose_unit: "kg N/ha"
+    P2O5:
+      equation_string: "1.54*T - 0.23*SP2O5 - 0.30*RRP2O5"
+      a: 1.54
+      b: 0.23
+      c_residue: 0.30
+      target_yield_unit: "q/ha"
+      soil_unit: "kg/ha"
+      dose_unit: "kg P2O5/ha"
+    K2O:
+      equation_string: "0.95*T - 0.10*SK2O - 0.12*RRK2O"
+      a: 0.95
+      b: 0.10
+      c_residue: 0.12
+      target_yield_unit: "q/ha"
+      soil_unit: "kg/ha"
+      dose_unit: "kg K2O/ha"

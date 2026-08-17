@@ -1,0 +1,41 @@
+# ==============================================================================
+# SIH 2026 Fertilizer Recommendation System
+# TRACK B: ML STUDY REGISTRY ENTRY — PAU WHEAT STCR (2022)
+# ==============================================================================
+# File: ml/registry/pau_wheat_stcr_2022_study.yaml
+#
+# Assessment of study suitability for ML residual/correction training.
+# ==============================================================================
+
+study_id: "STUDY-PAU-WHEAT-STCR-2022"
+source_id: "SRC-ICAR-PAU-WHEAT-STCR-2022"
+dataset_id: "DS-ICAR-PAU-WHEAT-STCR-2022"
+title: "Fertilizer prescription for target yield of wheat (Triticum aestivum) in alluvial soils"
+institution: "Punjab Agricultural University, Ludhiana"
+publication_year: 2022
+
+training_readiness: "needs_extraction_review"
+
+ml_assessment:
+  suitable_for_training: false
+  reason: >
+    The published paper reports experimental summary statistics (ranges and means per strip in Table 1)
+    and fitted STCR equations (Table 2), but not individual plot-level observation rows (which require
+    direct author trial records or supplemental dataset release). Synthetic plot-level records must
+    NOT be generated.
+  potential_features_when_extracted:
+    - "soil_n"
+    - "soil_p"
+    - "soil_k"
+    - "ph"
+    - "fertilizer_n"
+    - "fertilizer_p2o5"
+    - "fertilizer_k2o"
+    - "rice_residue"
+    - "observed_yield"
+    - "nutrient_uptake"
+  limitations:
+    - "Single experimental site (PAU Research Farm, Ludhiana)"
+    - "Single soil type (alluvial sandy loam, Typic Ustochrepts)"
+    - "Single cultivar (HD3086)"
+    - "Must not be generalized as representative of all Punjab farmer field conditions"

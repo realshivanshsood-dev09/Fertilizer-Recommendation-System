@@ -1,0 +1,7 @@
+# Provenance: Singh et al. (2022) IJAgS 92(12): 1502-1505, Table 1
+# Source ID: SRC-ICAR-PAU-WHEAT-STCR-2022
+# Note: Summary statistics for experimental strips (not individual plot records)
+strip,soil_n_min_kg_per_ha,soil_n_max_kg_per_ha,soil_n_mean_kg_per_ha,soil_p_min_kg_per_ha,soil_p_max_kg_per_ha,soil_p_mean_kg_per_ha,soil_k_min_kg_per_ha,soil_k_max_kg_per_ha,soil_k_mean_kg_per_ha,wheat_yield_min_q_per_ha,wheat_yield_max_q_per_ha,wheat_yield_mean_q_per_ha,n_uptake_min_kg_per_ha,n_uptake_max_kg_per_ha,n_uptake_mean_kg_per_ha,p_uptake_min_kg_per_ha,p_uptake_max_kg_per_ha,p_uptake_mean_kg_per_ha,k_uptake_min_kg_per_ha,k_uptake_max_kg_per_ha,k_uptake_mean_kg_per_ha
+Control,119.5,142.1,130.8,11.2,16.8,14.0,118.2,145.6,131.9,18.5,24.2,21.4,38.1,49.8,44.1,14.4,18.9,16.7,36.1,47.2,41.7
+Strip_1,128.4,168.2,148.3,14.5,24.6,19.6,132.4,178.5,155.5,35.2,52.4,43.8,72.5,108.0,90.2,27.5,40.9,34.2,68.6,102.2,85.4
+Strip_2,145.6,198.5,172.1,18.2,32.4,25.3,156.8,210.4,183.6,42.1,58.6,50.4,86.7,120.7,103.8,32.8,45.7,39.3,82.1,114.3,98.3

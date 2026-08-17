@@ -1,0 +1,44 @@
+# ==============================================================================
+# SIH 2026 Fertilizer Recommendation System
+# TRACK A: EXPERIMENTAL DESIGN METADATA — PAU WHEAT STCR (2022)
+# ==============================================================================
+# File: data/processed/pau_wheat_stcr_2022_experimental_metadata.yaml
+#
+# NOTE: These values describe the EXPERIMENTAL DESIGN of the research trial
+# at PAU Ludhiana and are NOT universal agronomic recommendations.
+# ==============================================================================
+
+provenance:
+  source_id: "SRC-ICAR-PAU-WHEAT-STCR-2022"
+  dataset_id: "DS-ICAR-PAU-WHEAT-STCR-2022"
+  citation: "Singh, Mavi, & Saini (2022). Indian J. Agric. Sci. 92(12): 1502–1505"
+
+trial_design:
+  crop: "wheat"
+  cultivar: "HD3086"
+  trial_location: "PAU Research Farm, Ludhiana, Punjab"
+  study_period: "2019–2021"
+  soil:
+    texture: "sandy loam"
+    classification: "Typic Ustochrepts"
+    sampling_depth_cm: "0–15"
+
+  treatment_levels:
+    nitrogen_kg_per_ha:
+      - 90
+      - 120
+      - 150
+    phosphorus_p2o5_kg_per_ha:
+      - 45
+      - 60
+      - 75
+    potassium_k2o_kg_per_ha:
+      - 20
+      - 30
+      - 40
+    rice_residue_t_per_ha: 6.0
+
+  application_schedule_experimental:
+    nitrogen: "1/2 at sowing, 1/2 after 21 days of sowing with first irrigation"
+    phosphorus: "Full basal dose at sowing"
+    potassium: "Full basal dose at sowing"

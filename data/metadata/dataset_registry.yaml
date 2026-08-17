@@ -1,0 +1,88 @@
+# ==============================================================================
+# SIH 2026 Fertilizer Recommendation System
+# TRACK A: DATASET REGISTRY
+# ==============================================================================
+# Location: data/metadata/dataset_registry.yaml
+# Single Source of Truth for all physical datasets, files, and tables.
+#
+# Rules:
+# 1. Every dataset must trace to a valid source_id in source_registry.yaml.
+# 2. Checksums (SHA-256) are mandatory for raw data integrity verification.
+# 3. Raw datasets in data/raw/ must never be modified or overwritten.
+# 4. Units and variables must be explicitly declared.
+# ==============================================================================
+
+_metadata:
+  schema_version: "1.0.0"
+  last_updated: "2026-08-18"
+  description: "Master registry of imported datasets and raw files"
+  allowed_formats:
+    - csv
+    - xlsx
+    - json
+    - pdf_table
+    - yaml
+  allowed_verification_statuses:
+    - unverified
+    - under_review
+    - verified
+    - rejected
+
+datasets:
+  DS-ICAR-PAU-WHEAT-STCR-2022:
+    dataset_id: "DS-ICAR-PAU-WHEAT-STCR-2022"
+    source_id: "SRC-ICAR-PAU-WHEAT-STCR-2022"
+    original_filename: "singh_mavi_saini_2022_pau_wheat_stcr.pdf"
+    local_path: "data/raw/icar/singh_mavi_saini_2022_pau_wheat_stcr.pdf"
+    format: "pdf_table"
+    checksum: "12a3ab54270e8dfa3f8df9ee9e26cf2ec0de56e46ffdaf59a06b9207691bd6ed"
+    retrieval_date: "2026-08-18"
+    processing_script: "backend/app/ingestion/readers.py"
+    processing_version: "1.0.0"
+    geographic_scope: "Research Farm, PAU Ludhiana, Punjab (Typic Ustochrepts)"
+    crop: "wheat"
+    variables:
+      - "T"
+      - "SN"
+      - "SP2O5"
+      - "SK2O"
+      - "RRN"
+      - "RRP2O5"
+      - "RRK2O"
+      - "NR_N"
+      - "NR_P2O5"
+      - "NR_K2O"
+      - "CS_N"
+      - "CS_P2O5"
+      - "CS_K2O"
+      - "CF_N"
+      - "CF_P2O5"
+      - "CF_K2O"
+      - "CRR_N"
+      - "CRR_P2O5"
+      - "CRR_K2O"
+    units:
+      T: "q/ha"
+      SN: "kg/ha"
+      SP2O5: "kg/ha"
+      SK2O: "kg/ha"
+      RRN: "kg/ha"
+      RRP2O5: "kg/ha"
+      RRK2O: "kg/ha"
+      NR_N: "kg N/q"
+      NR_P2O5: "kg P2O5/q"
+      NR_K2O: "kg K2O/q"
+      CS_N: "%"
+      CS_P2O5: "%"
+      CS_K2O: "%"
+      CF_N: "%"
+      CF_P2O5: "%"
+      CF_K2O: "%"
+      CRR_N: "%"
+      CRR_P2O5: "%"
+      CRR_K2O: "%"
+    extraction_method: "Manual double transcription from Table 2 (equations) and Table 1 (experimental summary), verified against raw ICAR PDF"
+    missingness_notes: "STCR equations extracted from Table 2 (p. 1504); experimental summary statistics extracted from Table 1 (p. 1503)."
+    verification_status: "verified"
+    license: "Not explicitly stated"
+    access_status: "Openly accessible via ICAR e-pubs"

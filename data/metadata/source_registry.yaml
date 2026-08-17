@@ -1,0 +1,54 @@
+# ==============================================================================
+# SIH 2026 Fertilizer Recommendation System
+# TRACK A: SOURCE REGISTRY
+# ==============================================================================
+# Location: data/metadata/source_registry.yaml
+# Single Source of Truth for all agricultural data sources and literature.
+#
+# Rules:
+# 1. DO NOT fabricate or guess citations or URLs.
+# 2. Every dataset imported into Track A must link to a valid source_id here.
+# 3. Sources from PAU, ICAR, Govt portals, and peer-reviewed journals only.
+# ==============================================================================
+
+_metadata:
+  schema_version: "1.0.0"
+  last_updated: "2026-08-18"
+  description: "Master registry of authoritative agricultural data sources"
+  allowed_source_types:
+    - government
+    - university
+    - ICAR
+    - peer_reviewed
+    - soil_health_card
+    - field_trial
+  allowed_verification_statuses:
+    - unverified
+    - under_review
+    - verified
+    - rejected
+
+sources:
+  SRC-ICAR-PAU-WHEAT-STCR-2022:
+    source_id: "SRC-ICAR-PAU-WHEAT-STCR-2022"
+    institution: "Punjab Agricultural University, Ludhiana, Punjab, India"
+    source_type: "university"
+    publisher: "Indian Council of Agricultural Research"
+    title: "Fertilizer prescription for target yield of wheat (Triticum aestivum) in alluvial soils"
+    publication: "The Indian Journal of Agricultural Sciences, Vol. 92, No. 12, pp. 1502–1505"
+    authors:
+      - "Jagdeep Singh"
+      - "M S Mavi"
+      - "Sat Pal Saini"
+    publication_year: 2022
+    doi: "10.56093/ijas.v92i12.125137"
+    url: "https://epubs.icar.org.in/index.php/IJAgS/article/view/125137"
+    retrieval_date: "2026-08-18"
+    geographic_scope: "Research Farm, Punjab Agricultural University, Ludhiana, Punjab (sandy loam, Typic Ustochrepts)"
+    crop: "wheat"
+    data_type: "stcr_coefficients"
+    license: "Not explicitly stated"
+    access_status: "Openly accessible via ICAR e-pubs"
+    verification_status: "verified"
+    verifier: "Track A Ingestion Pipeline"
+    notes: "Study period 2019–2021. Wheat cultivar HD3086 on Typic Ustochrepts sandy loam alluvial soil under rice-wheat cropping system. Soil depth 0–15 cm. Specific to alluvial soils; not universally applicable to all Punjab soil types."
