@@ -1,0 +1,50 @@
+# ==============================================================================
+# SIH 2026 Fertilizer Recommendation System
+# TRACK A: PROCESSED DATASET SUMMARY — PAU RICE STCR VERIFICATION (2012)
+# ==============================================================================
+# File: data/processed/pau_rice_stcr_verification_2012_summary.yaml
+#
+# Primary Citation:
+#   Khosa, M. K., Sekhon, B. S., Mavi, M. S., Benipal, D. S., & Benbi, D. K. (2012).
+#   Performance of target yield based fertiliser prescription equations in rice-wheat
+#   cropping system in Punjab.
+#   Indian Journal of Fertilisers, 8(2), 14–18.
+# ==============================================================================
+
+provenance:
+  source_id: "SRC-PAU-RICE-STCR-FIELD-VERIFICATION-2012"
+  dataset_id: "DS-PAU-RICE-STCR-FIELD-VERIFICATION-2012"
+  citation: "Khosa et al. (2012). Indian J. Fertilisers 8(2): 14–18"
+  publisher: "The Fertiliser Association of India, New Delhi"
+  raw_source_status: "not_acquired"
+  verification_status: "verified"
+  notes: >
+    Evaluates field performance of pre-existing STCR target-yield equations in rice-wheat cropping
+    systems across demonstration sites in Punjab. This is an agronomic field-verification study,
+    not the primary single-nutrient calibration derivation.
+
+study_characterization:
+  role: "field_verification"
+  derives_new_equations: false
+  applies_preexisting_equations: true
+  cropping_system: "rice-wheat"
+  crops_evaluated:
+    - "rice (Oryza sativa)"
+    - "wheat (Triticum aestivum)"
+  geographic_scope: "Punjab (alluvial soils)"
+  malwa_direct_evidence: false
+  malwa_applicability_note: >
+    Direct evidence for the south-western Malwa zone (Bathinda, Mansa, Muktsar, Faridkot, Moga)
+    is not established in this paper. Equations must not be assumed universally identical for
+    Malwa without localized calibration data.
+
+agronomic_evaluation_summary:
+  comparison_treatments:
+    - "Targeted yield (STCR prescription)"
+    - "State blanket recommendation / General recommended dose (GRD)"
+    - "Farmers' traditional practice"
+    - "Unfertilized control"
+  key_findings:
+    - "Target-yield based fertilizer prescriptions achieved target yield within +/- 10% deviations."
+    - "STCR approach demonstrated higher nutrient use efficiency and net economic returns compared to blanket recommendations."
+    - "Helped prevent excessive fertilizer phosphorus application in soils with medium-to-high initial P status."

@@ -160,26 +160,30 @@ class DatasetRegistryEntry(BaseModel):
         ...,
         description="Foreign reference to SourceRegistryEntry.source_id"
     )
-    original_filename: str = Field(
-        ...,
+    original_filename: Optional[str] = Field(
+        None,
         description="Original name of the acquired file"
     )
-    local_path: str = Field(
-        ...,
+    local_path: Optional[str] = Field(
+        None,
         description="Path relative to repository root (e.g. 'data/raw/pau/stcr_wheat_2023.csv')"
     )
     format: DatasetFormat = Field(
         ...,
         description="File format"
     )
-    checksum: str = Field(
-        ...,
+    raw_source_status: str = Field(
+        default="acquired",
+        description="Status of physical raw file: 'acquired' or 'not_acquired'"
+    )
+    checksum: Optional[str] = Field(
+        None,
         description="SHA-256 checksum of the raw file",
         pattern=r"^[a-fA-F0-9]{64}$"
     )
     retrieval_date: Union[date, str] = Field(
         ...,
-        description="Date the file was obtained"
+        description="Date the file/metadata was obtained"
     )
     processing_script: Optional[str] = Field(
         None,
@@ -215,7 +219,7 @@ class DatasetRegistryEntry(BaseModel):
     )
     extraction_method: Optional[str] = Field(
         None,
-        description="Method used to extract data (e.g. 'manual_double_transcription_from_pdf_table_2')"
+        description="Method used to extract data"
     )
     verification_status: VerificationStatus = Field(
         default=VerificationStatus.UNVERIFIED,
@@ -227,13 +231,15 @@ class DatasetRegistryEntry(BaseModel):
     )
     access_status: Optional[str] = Field(
         None,
-        description="Access availability (e.g. 'Openly accessible via ICAR e-pubs')"
+        description="Access availability"
     )
 
     @field_validator("local_path")
     @classmethod
-    def validate_raw_path(cls, v: str) -> str:
-        """Enforces that raw dataset paths stay within data/raw/ or data/metadata/."""
+    def validate_raw_path(cls, v: Optional[str]) -> Optional[str]:
+        """Enforces that raw dataset paths stay within data/raw/ or data/metadata/ when provided."""
+        if v is None:
+            return None
         normalized = v.replace("\\", "/")
         if not (normalized.startswith("data/raw/") or normalized.startswith("data/metadata/")):
             raise ValueError(f"local_path must reside in data/raw/ or data/metadata/, got '{v}'")

@@ -1,0 +1,40 @@
+# ==============================================================================
+# SIH 2026 Fertilizer Recommendation System
+# TRACK B: ML STUDY REGISTRY ENTRY — KHOSA ET AL. (2012)
+# ==============================================================================
+# File: ml/registry/khosa_2012_rice_stcr_verification.yaml
+#
+# Assessment of study suitability for ML training & validation.
+# ==============================================================================
+
+study_id: "STUDY-PAU-KHOSA-2012"
+source_id: "SRC-PAU-RICE-STCR-FIELD-VERIFICATION-2012"
+dataset_id: "DS-PAU-RICE-STCR-FIELD-VERIFICATION-2012"
+title: "Performance of target yield based fertiliser prescription equations in rice-wheat cropping system in Punjab"
+institution: "Punjab Agricultural University, Ludhiana"
+publication_year: 2012
+
+classification:
+  training_candidate: false
+  validation_candidate: true
+  external_validation_candidate: true
+  context_only: true
+
+training_readiness: "not_applicable"
+suitable_for_training: false
+
+malwa_direct_evidence: false
+
+ml_assessment:
+  reason: >
+    The study presents aggregated demonstration-trial and treatment-level mean comparisons
+    between STCR targeted yield, general recommended dose (GRD), and farmers' practice.
+    Individual plot-level feature rows are not accessible in open repositories; synthetic
+    observations must NOT be manufactured.
+  external_validation_value: >
+    Serves as an external literature reference confirming that STCR targeted-yield formulations
+    achieve higher agronomic efficiency than blanket rates in Punjab alluvial soils.
+  limitations:
+    - "Aggregated field results only"
+    - "Primary PDF behind FAI print/subscription"
+    - "No direct evidence for south-western Malwa districts (Bathinda, Mansa, Muktsar, Moga, Faridkot)"

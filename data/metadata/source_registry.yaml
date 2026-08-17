@@ -77,3 +77,30 @@ sources:
     verification_status: "verified"
     verifier: "Track A Ingestion Pipeline"
     notes: "Three-year field experiment (2018–2020) in Gurdaspur, Punjab on sandy loam Typic Ustipsamment soil. Validates STCR target-yield equations and INM with FYM in rice (PR121)-wheat (HD3086) system. This is an application/validation study, NOT the original STCR calibration derivation."
+
+  SRC-PAU-RICE-STCR-FIELD-VERIFICATION-2012:
+    source_id: "SRC-PAU-RICE-STCR-FIELD-VERIFICATION-2012"
+    institution: "Punjab Agricultural University, Ludhiana, Punjab, India"
+    source_type: "university"
+    publisher: "The Fertiliser Association of India"
+    title: "Performance of target yield based fertiliser prescription equations in rice-wheat cropping system in Punjab"
+    publication: "Indian Journal of Fertilisers, Vol. 8, No. 2, pp. 14–18"
+    authors:
+      - "M K Khosa"
+      - "B S Sekhon"
+      - "M S Mavi"
+      - "D S Benipal"
+      - "D K Benbi"
+    publication_year: 2012
+    doi: null
+    url: "https://www.faidelhi.org/"
+    retrieval_date: "2026-08-18"
+    geographic_scope: "Punjab, India (alluvial soils under rice-wheat cropping system; farmer field demonstration trials)"
+    crop: "rice"
+    secondary_crop: "wheat"
+    data_type: "stcr_field_verification"
+    license: "Subscription / Copyright The Fertiliser Association of India"
+    access_status: "Indexed bibliographic record; print/subscription distribution by FAI New Delhi"
+    verification_status: "verified"
+    verifier: "Track A Ingestion Pipeline"
+    notes: "Assesses multi-location field performance and economics of pre-existing STCR target-yield equations in farmer fields across Punjab. This is an agronomic field-verification study, NOT the original single-nutrient STCR calibration derivation. Raw PDF is behind publisher subscription (FAI) and not openly available in open-access repos."

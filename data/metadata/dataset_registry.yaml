@@ -35,6 +35,7 @@ datasets:
     original_filename: "singh_mavi_saini_2022_pau_wheat_stcr.pdf"
     local_path: "data/raw/icar/singh_mavi_saini_2022_pau_wheat_stcr.pdf"
     format: "pdf_table"
+    raw_source_status: "acquired"
     checksum: "12a3ab54270e8dfa3f8df9ee9e26cf2ec0de56e46ffdaf59a06b9207691bd6ed"
     retrieval_date: "2026-08-18"
     processing_script: "backend/app/ingestion/readers.py"
@@ -93,6 +94,7 @@ datasets:
     original_filename: "singh_mavi_saini_2021_pau_rice_wheat_tye_inm.pdf"
     local_path: "data/raw/icar/singh_mavi_saini_2021_pau_rice_wheat_tye_inm.pdf"
     format: "pdf_table"
+    raw_source_status: "acquired"
     checksum: "df29ab77b2149552c7cebc6bc9ded0e9ec2cf5074a7706e9eb4078efd7ca9e07"
     retrieval_date: "2026-08-18"
     processing_script: "backend/app/ingestion/readers.py"
@@ -133,3 +135,35 @@ datasets:
     verification_status: "verified"
     license: "CC BY-NC-SA 4.0"
     access_status: "Openly accessible via ICAR e-pubs"
+
+  DS-PAU-RICE-STCR-FIELD-VERIFICATION-2012:
+    dataset_id: "DS-PAU-RICE-STCR-FIELD-VERIFICATION-2012"
+    source_id: "SRC-PAU-RICE-STCR-FIELD-VERIFICATION-2012"
+    original_filename: null
+    local_path: null
+    format: "pdf_table"
+    raw_source_status: "not_acquired"
+    checksum: null
+    retrieval_date: "2026-08-18"
+    processing_script: null
+    processing_version: "1.0.0"
+    geographic_scope: "Punjab (alluvial soils under rice-wheat system)"
+    crop: "rice"
+    secondary_crop: "wheat"
+    variables:
+      - "crop"
+      - "target_yield_q_per_ha"
+      - "treatment"
+      - "observed_yield_t_per_ha"
+      - "economic_return"
+    units:
+      crop: "text"
+      target_yield_q_per_ha: "q/ha"
+      treatment: "text"
+      observed_yield_t_per_ha: "t/ha"
+      economic_return: "INR/ha"
+    extraction_method: "Bibliographic indexing and secondary review synthesis; primary PDF not in open-access repository."
+    missingness_notes: "Primary publisher print/subscription document (FAI); raw PDF not acquired. Documented as external verification lead."
+    verification_status: "verified"
+    license: "Subscription / Copyright FAI"
+    access_status: "Print/Member subscription distribution by The Fertiliser Association of India"

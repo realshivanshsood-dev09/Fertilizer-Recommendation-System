@@ -1,0 +1,82 @@
+# ==============================================================================
+# SIH 2026 Fertilizer Recommendation System
+# TRACK A: RICE STCR PROVENANCE TRACE
+# ==============================================================================
+# File: data/metadata/rice_stcr_provenance_trace.yaml
+#
+# Provenance investigation tracking the foundational origin of the rice
+# target-yield equations used in Dataset 002 (Singh et al., 2021).
+#
+# Equations:
+#   FN = 3.02T - 0.63SN
+#   FP2O5 = 1.78T - 8.37SP
+#   FK2O = 2.75T - 1.39SK
+# ==============================================================================
+
+equation:
+  N:
+    equation: "3.02T - 0.63SN"
+    current_source: "SRC-ICAR-PAU-RICE-TYE-INM-2021"
+    calibration_source: "Punjab Agricultural University / AICRP on STCR Punjab Center"
+    calibration_source_status: "probable"
+    notes: "Applied in Dataset 002 (Singh et al. 2021 p. 1529). Original calibration source document pending physical acquisition."
+
+  P2O5:
+    equation: "1.78T - 8.37SP"
+    current_source: "SRC-ICAR-PAU-RICE-TYE-INM-2021"
+    calibration_source: "Punjab Agricultural University / AICRP on STCR Punjab Center"
+    calibration_source_status: "probable"
+    notes: "Applied in Dataset 002 (Singh et al. 2021 p. 1529). High soil slope (8.37) reflects low P recovery/high fixation in specific soil types."
+
+  K2O:
+    equation: "2.75T - 1.39SK"
+    current_source: "SRC-ICAR-PAU-RICE-TYE-INM-2021"
+    calibration_source: "Punjab Agricultural University / AICRP on STCR Punjab Center"
+    calibration_source_status: "probable"
+    notes: "Applied in Dataset 002 (Singh et al. 2021 p. 1529). Original calibration source document pending physical acquisition."
+
+candidate_sources:
+  - source_id: "SRC-ICAR-PAU-RICE-TYE-INM-2021"
+    title: "Target yield based integrated nutrient management in rice (Oryza sativa)-wheat (Triticum aestivum) cropping system"
+    authors:
+      - "Jagdeep Singh"
+      - "M S Mavi"
+      - "Sat Pal Saini"
+    year: 2021
+    publication: "Indian Journal of Agricultural Sciences 91(10): 1528–1531"
+    doi: "10.56093/ijas.v91i10.117521"
+    role: "validation"
+    evidence: >
+      Evaluates 3-year field performance of 100% STCR and INM with FYM on PR121 rice in Gurdaspur.
+      Reports the equations on p. 1529 as applied methodology; does not derive the underlying
+      NR/CS/CF calibration constants or attach a dedicated calibration reference to the rice equation block.
+    confidence: "verified_as_validation"
+
+  - source_id: "SRC-PAU-KHOSA-2012"
+    title: "Performance of target yield based fertiliser prescription equations in rice-wheat cropping system in Punjab"
+    authors:
+      - "M K Khosa"
+      - "B S Sekhon"
+      - "M S Mavi"
+      - "D S Benipal"
+      - "D K Benbi"
+    year: 2012
+    publication: "Indian Journal of Fertilisers 8(2): 14–18"
+    role: "validation"
+    evidence: >
+      Assesses field efficacy and yield performance of pre-existing STCR target-yield equations
+      across multiple locations in Punjab rice-wheat systems. It is an agronomic validation and
+      economic verification paper, not the foundational inductive calibration experiment.
+    confidence: "verified_as_validation"
+
+  - source_id: "SRC-PAU-AICRP-STCR-RICE-CALIBRATION-HISTORICAL"
+    title: "Soil Test Crop Response Calibration Bulletins & Annual Reports for Rice in Punjab"
+    institution: "Department of Soil Science, Punjab Agricultural University, Ludhiana / ICAR-AICRP on STCR"
+    year: null
+    role: "calibration"
+    evidence: >
+      The foundational inductive-cum-targeted yield calibration trials that empirically calculated
+      the nutrient requirement (NR), soil contribution (CS), and fertilizer efficiency (CF) values
+      producing 3.02, 0.63, 1.78, 8.37, 2.75, 1.39 were conducted under the PAU / AICRP-STCR center.
+      The specific archival research bulletin/report must be acquired and verified before marking status as verified.
+    confidence: "probable_pending_acquisition"
