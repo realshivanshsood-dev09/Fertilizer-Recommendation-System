@@ -1,0 +1,50 @@
+# ==============================================================================
+# SIH 2026 Fertilizer Recommendation System
+# TRACK B: ML STUDY REGISTRY ENTRY — PAU RICE TYE / INM VALIDATION (2021)
+# ==============================================================================
+# File: ml/registry/pau_rice_tye_inm_2021_study.yaml
+#
+# Assessment of study suitability for ML residual/correction training & validation.
+# ==============================================================================
+
+study_id: "STUDY-PAU-RICE-TYE-INM-2021"
+source_id: "SRC-ICAR-PAU-RICE-TYE-INM-2021"
+dataset_id: "DS-ICAR-PAU-RICE-TYE-INM-2021"
+title: "Target yield based integrated nutrient management in rice (Oryza sativa)-wheat (Triticum aestivum) cropping system"
+institution: "Punjab Agricultural University, Ludhiana"
+publication_year: 2021
+
+training_readiness: "needs_extraction_review"
+suitable_for_training: false
+
+classification:
+  potential_validation_source: true
+  potential_stcr_validation_source: true
+  potential_feature_reference: true
+
+ml_assessment:
+  reason: >
+    The published article provides treatment-level pooled means over three consecutive years (2018–2020)
+    and three replications, rather than raw individual plot-level observation rows. Synthetic plot records
+    must NOT be manufactured.
+  validation_value: >
+    Contains real field trial response data comparing 100% STCR, INM (with FYM), and sub-optimal doses
+    under rice-wheat system. Ideal as an independent benchmark for evaluating whether ML residual
+    corrections align with empirical field findings.
+  potential_features_when_extracted:
+    - "soil_n"
+    - "soil_p"
+    - "soil_k"
+    - "ph"
+    - "ec"
+    - "organic_carbon"
+    - "fertilizer_n"
+    - "fertilizer_p2o5"
+    - "fertilizer_k2o"
+    - "fym_input"
+    - "observed_rice_yield"
+    - "observed_wheat_yield"
+  limitations:
+    - "Single experimental site (Gurdaspur, Punjab)"
+    - "Typic Ustipsamment sandy loam soil"
+    - "PR121 rice / HD3086 wheat rotation"

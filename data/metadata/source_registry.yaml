@@ -52,3 +52,28 @@ sources:
     verification_status: "verified"
     verifier: "Track A Ingestion Pipeline"
     notes: "Study period 2019–2021. Wheat cultivar HD3086 on Typic Ustochrepts sandy loam alluvial soil under rice-wheat cropping system. Soil depth 0–15 cm. Specific to alluvial soils; not universally applicable to all Punjab soil types."
+
+  SRC-ICAR-PAU-RICE-TYE-INM-2021:
+    source_id: "SRC-ICAR-PAU-RICE-TYE-INM-2021"
+    institution: "Punjab Agricultural University, Ludhiana, Punjab, India"
+    source_type: "university"
+    publisher: "Indian Council of Agricultural Research"
+    title: "Target yield based integrated nutrient management in rice (Oryza sativa)-wheat (Triticum aestivum) cropping system"
+    publication: "Indian Journal of Agricultural Sciences, Vol. 91, No. 10, pp. 1528–1531"
+    authors:
+      - "Jagdeep Singh"
+      - "M S Mavi"
+      - "Sat Pal Saini"
+    publication_year: 2021
+    doi: "10.56093/ijas.v91i10.117521"
+    url: "https://epubs.icar.org.in/index.php/IJAgS/article/view/117521"
+    retrieval_date: "2026-08-18"
+    geographic_scope: "Gurdaspur, Punjab, India; farmers' field; sandy loam Typic Ustipsamment"
+    crop: "rice"
+    secondary_crop: "wheat"
+    data_type: "stcr_target_yield_application_validation"
+    license: "CC BY-NC-SA 4.0"
+    access_status: "Openly accessible via ICAR e-pubs"
+    verification_status: "verified"
+    verifier: "Track A Ingestion Pipeline"
+    notes: "Three-year field experiment (2018–2020) in Gurdaspur, Punjab on sandy loam Typic Ustipsamment soil. Validates STCR target-yield equations and INM with FYM in rice (PR121)-wheat (HD3086) system. This is an application/validation study, NOT the original STCR calibration derivation."

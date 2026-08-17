@@ -112,11 +112,15 @@ class SourceRegistryEntry(BaseModel):
     )
     crop: Optional[str] = Field(
         None,
-        description="Applicable crop or 'all'"
+        description="Applicable primary crop or 'all'"
+    )
+    secondary_crop: Optional[str] = Field(
+        None,
+        description="Applicable secondary/rotation crop (e.g. 'wheat' in rice-wheat system)"
     )
     data_type: str = Field(
         ...,
-        description="Type of data, e.g. 'stcr_coefficients', 'soil_health_card', 'field_trial'"
+        description="Type of data, e.g. 'stcr_coefficients', 'stcr_target_yield_application_validation', 'soil_health_card', 'field_trial'"
     )
     license: Optional[str] = Field(
         None,
@@ -192,6 +196,10 @@ class DatasetRegistryEntry(BaseModel):
     crop: Optional[str] = Field(
         None,
         description="Crop applicability"
+    )
+    secondary_crop: Optional[str] = Field(
+        None,
+        description="Secondary/rotation crop"
     )
     variables: List[str] = Field(
         default_factory=list,

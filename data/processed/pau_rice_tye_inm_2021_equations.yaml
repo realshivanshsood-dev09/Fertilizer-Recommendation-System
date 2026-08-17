@@ -1,0 +1,95 @@
+# ==============================================================================
+# SIH 2026 Fertilizer Recommendation System
+# TRACK A: PROCESSED DATASET — PAU RICE TARGET-YIELD VALIDATION (2021)
+# ==============================================================================
+# File: data/processed/pau_rice_tye_inm_2021_equations.yaml
+#
+# Primary Citation:
+#   Singh, J., Mavi, M. S., & Saini, S. P. (2021).
+#   Target yield based integrated nutrient management in rice (Oryza sativa)-wheat
+#   (Triticum aestivum) cropping system.
+#   The Indian Journal of Agricultural Sciences, 91(10), 1528–1531.
+#   DOI: 10.56093/ijas.v91i10.117521
+# ==============================================================================
+
+provenance:
+  source_id: "SRC-ICAR-PAU-RICE-TYE-INM-2021"
+  dataset_id: "DS-ICAR-PAU-RICE-TYE-INM-2021"
+  document_title: "Target yield based integrated nutrient management in rice (Oryza sativa)-wheat (Triticum aestivum) cropping system"
+  publication: "Indian Journal of Agricultural Sciences, 91(10): 1528–1531"
+  publisher: "Indian Council of Agricultural Research"
+  authors:
+    - "Jagdeep Singh"
+    - "M S Mavi"
+    - "Sat Pal Saini"
+  publication_year: 2021
+  doi: "10.56093/ijas.v91i10.117521"
+  url: "https://epubs.icar.org.in/index.php/IJAgS/article/view/117521"
+  section_reference: "Materials and Methods (p. 1529)"
+  extraction_method: "Manual double transcription from p. 1529, verified against raw ICAR PDF"
+  license: "CC BY-NC-SA 4.0"
+  access_status: "Openly accessible via ICAR e-pubs"
+  verification_status: "verified"
+  verifier: "Track A Ingestion Pipeline"
+  retrieved_date: "2026-08-18"
+  classification: "stcr_target_yield_application_validation"
+  follow_up_lead_original_calibration: >
+    This study applies preexisting STCR target-yield calibration equations for rice in Gurdaspur.
+    The original calibration derivation source should be acquired and verified in a separate Track A dataset.
+
+scope:
+  crop: "rice"
+  crop_scientific_name: "Oryza sativa"
+  cultivar: "PR121"
+  season: "kharif"
+  secondary_crop: "wheat (HD3086)"
+  geographic_scope: "Gurdaspur, Punjab, India (farmers' field)"
+  soil_type: "sandy loam (Typic Ustipsamment)"
+  soil_depth_cm: "0–15"
+  cropping_system: "rice-wheat"
+  annual_rainfall_mm: 887.0
+
+soil_test_methods:
+  nitrogen:
+    method: "KMnO4 extractable N"
+    citation: "Subbiah and Asija (1956)"
+    unit: "kg/ha"
+  phosphorus:
+    method: "0.5M NaHCO3 extractable P (Olsen-P)"
+    citation: "Olsen et al. (1954)"
+    unit: "kg/ha"
+  potassium:
+    method: "1N ammonium acetate extractable K"
+    citation: "Merwin and Peech (1950)"
+    unit: "kg/ha"
+
+equations:
+  description: >
+    Applied rice target-yield equations (p. 1529).
+    T = target yield in q/ha.
+    SN, SP, SK = corresponding initial soil test value in kg/ha.
+    Doses calculated in kg/ha of fertilizer nutrient.
+    Applicable specifically to Gurdaspur sandy loam Typic Ustipsamment soil in rice-wheat system.
+
+  rice_stcr_target_yield:
+    N:
+      equation_string: "3.02*T - 0.63*SN"
+      a: 3.02
+      b: 0.63
+      target_yield_unit: "q/ha"
+      soil_unit: "kg/ha"
+      dose_unit: "kg N/ha"
+    P2O5:
+      equation_string: "1.78*T - 8.37*SP"
+      a: 1.78
+      b: 8.37
+      target_yield_unit: "q/ha"
+      soil_unit: "kg/ha"
+      dose_unit: "kg P2O5/ha"
+    K2O:
+      equation_string: "2.75*T - 1.39*SK"
+      a: 2.75
+      b: 1.39
+      target_yield_unit: "q/ha"
+      soil_unit: "kg/ha"
+      dose_unit: "kg K2O/ha"

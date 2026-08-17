@@ -1,0 +1,79 @@
+# ==============================================================================
+# SIH 2026 Fertilizer Recommendation System
+# TRACK A: EXPERIMENTAL DESIGN & SOIL METADATA — PAU RICE TYE / INM (2021)
+# ==============================================================================
+# File: data/processed/pau_rice_tye_inm_2021_experimental_metadata.yaml
+#
+# NOTE: These values describe the EXPERIMENTAL DESIGN of the research trial
+# in Gurdaspur, Punjab and are NOT universal agronomic recommendations.
+# ==============================================================================
+
+provenance:
+  source_id: "SRC-ICAR-PAU-RICE-TYE-INM-2021"
+  dataset_id: "DS-ICAR-PAU-RICE-TYE-INM-2021"
+  citation: "Singh, Mavi, & Saini (2021). Indian J. Agric. Sci. 91(10): 1528–1531"
+  license: "CC BY-NC-SA 4.0"
+
+site_and_soil_characteristics:
+  location: "Gurdaspur, Punjab, India (farmers' field)"
+  study_period: "2018–2020 (3 consecutive years)"
+  annual_rainfall_mm: 887.0
+  soil:
+    texture: "sandy loam"
+    classification: "Typic Ustipsamment"
+    sampling_depth_cm: "0–15"
+  initial_soil_test:
+    pH: 7.5
+    electrical_conductivity_dS_per_m: 0.16
+    organic_carbon_g_per_kg: 4.65
+    available_n_kmno4_kg_per_ha: 112.0
+    available_p_olsen_kg_per_ha: 21.0
+    available_k_nh4oac_kg_per_ha: 108.0
+
+crops_and_management:
+  rice:
+    cultivar: "PR121"
+    transplanting_window: "June 20–30"
+    nitrogen_schedule: "3 equal splits: 0 (basal), 21, and 42 days after transplanting (DAT)"
+    p_and_k_schedule: "Full basal dose before transplanting"
+  wheat:
+    cultivar: "HD3086"
+    sowing_window: "November 1–15"
+    nitrogen_schedule: "2 equal splits: 1/2 at sowing, 1/2 at 4 weeks after sowing with first irrigation"
+    p_and_k_schedule: "Full basal dose before sowing"
+
+organic_manure_fym:
+  type: "Well-decomposed fresh farmyard manure (FYM)"
+  incorporation: "Incorporated into soil before rice transplanting"
+  moisture_basis_pct: 50.0
+  nutrient_composition_at_50pct_moisture:
+    nitrogen_n_pct: 0.85
+    phosphorus_p2o5_pct: 0.23
+    potassium_k2o_pct: 0.77
+
+experimental_design:
+  layout: "Randomized complete block design (RCBD)"
+  replications: 3
+  plot_size_m: "8 m × 3 m"
+  harvest_stage: "Physiological maturity"
+  sample_fractions: "Grain and straw"
+  plant_analysis: "Total N, P, K concentration in grain and straw"
+  statistical_analysis: "Analysis of variance (ANOVA)"
+  mean_separation_test: "Duncan's multiple range test (DMRT) at 5% probability level"
+
+treatments:
+  T1:
+    label: "100% estimated fertilizer NPK"
+    description: "100% of STCR-prescribed chemical fertilizer NPK"
+  T2:
+    label: "75% estimated fertilizer NPK + 25% N from FYM (100% INM)"
+    description: "75% chemical fertilizer NPK + 25% N substituted through FYM"
+  T3:
+    label: "75% NPK"
+    description: "75% of STCR-prescribed chemical fertilizer NPK alone"
+  T4:
+    label: "50% estimated fertilizer NPK + 25% N from FYM (75% INM)"
+    description: "50% chemical fertilizer NPK + 25% N substituted through FYM"
+  T5:
+    label: "Control"
+    description: "Unfertilized control (no chemical fertilizer, no FYM)"
