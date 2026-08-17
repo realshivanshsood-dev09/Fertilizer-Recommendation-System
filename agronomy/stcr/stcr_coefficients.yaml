@@ -1,0 +1,167 @@
+# STCR Coefficients — Malwa Region, Punjab
+# =========================================
+# This file is the SINGLE SOURCE OF TRUTH for STCR coefficients.
+# The Python service loads this file at startup.
+#
+# ⚠️  ALL SCIENTIFIC VALUES ARE NULL PLACEHOLDERS.
+# DO NOT USE FOR AGRONOMIC DECISIONS.
+# DO NOT FILL WITH INVENTED VALUES.
+#
+# Required data sources:
+#   - PAU Ludhiana: "Fertilizer Use Research in Punjab" reports
+#   - ICAR-IISS: "STCR Norms for Major Crops" bulletins
+#   - Punjab Agriculture Department soil test-fertilizer response data
+
+_metadata:
+  schema_version: "1.0"
+  geographic_scope: "Malwa region, Punjab (Bathinda, Mansa, Muktsar, Moga, Faridkot)"
+  source: null                    # e.g. "PAU Ludhiana"
+  source_document: null           # e.g. "Fertilizer Use Research in Punjab, 2023"
+  publication_year: null
+  soil_test_method: null          # e.g. "Alkaline KMnO4 for N, Olsen's for P, Ammonium acetate for K"
+  verified: false
+  last_updated: null
+  notes: "All coefficients are null placeholders awaiting authoritative PAU/ICAR data."
+
+# Per crop × nutrient coefficients
+# Formula: Dose (kg/ha) = (a × T − b × S) / FUE
+#   a   = nutrient requirement per Mg target yield (kg nutrient / Mg grain yield)
+#   b   = soil test calibration coefficient (dimensionless slope)
+#   T   = target yield (Mg/ha)
+#   S   = soil test value (kg/ha)
+#   FUE = fertilizer use efficiency (fraction, 0–1)
+
+wheat:
+  season: rabi
+  N:
+    a: null
+    b: null
+    target_yield_Mg_per_ha: null
+    FUE: null
+    units:
+      a: "kg N / Mg grain yield"
+      b: "dimensionless"
+      target_yield: "Mg/ha"
+      FUE: "fraction (0-1)"
+    source: null
+    source_document: null
+    publication_year: null
+    verified: false
+  P:
+    a: null
+    b: null
+    target_yield_Mg_per_ha: null
+    FUE: null
+    units:
+      a: "kg P2O5 / Mg grain yield"
+      b: "dimensionless"
+      target_yield: "Mg/ha"
+      FUE: "fraction (0-1)"
+    source: null
+    source_document: null
+    publication_year: null
+    verified: false
+  K:
+    a: null
+    b: null
+    target_yield_Mg_per_ha: null
+    FUE: null
+    units:
+      a: "kg K2O / Mg grain yield"
+      b: "dimensionless"
+      target_yield: "Mg/ha"
+      FUE: "fraction (0-1)"
+    source: null
+    source_document: null
+    publication_year: null
+    verified: false
+
+rice:
+  season: kharif
+  N:
+    a: null
+    b: null
+    target_yield_Mg_per_ha: null
+    FUE: null
+    units:
+      a: "kg N / Mg grain yield"
+      b: "dimensionless"
+      target_yield: "Mg/ha"
+      FUE: "fraction (0-1)"
+    source: null
+    source_document: null
+    publication_year: null
+    verified: false
+  P:
+    a: null
+    b: null
+    target_yield_Mg_per_ha: null
+    FUE: null
+    units:
+      a: "kg P2O5 / Mg grain yield"
+      b: "dimensionless"
+      target_yield: "Mg/ha"
+      FUE: "fraction (0-1)"
+    source: null
+    source_document: null
+    publication_year: null
+    verified: false
+  K:
+    a: null
+    b: null
+    target_yield_Mg_per_ha: null
+    FUE: null
+    units:
+      a: "kg K2O / Mg grain yield"
+      b: "dimensionless"
+      target_yield: "Mg/ha"
+      FUE: "fraction (0-1)"
+    source: null
+    source_document: null
+    publication_year: null
+    verified: false
+
+cotton:
+  season: kharif
+  N:
+    a: null
+    b: null
+    target_yield_Mg_per_ha: null
+    FUE: null
+    units:
+      a: "kg N / Mg lint yield"
+      b: "dimensionless"
+      target_yield: "Mg/ha"
+      FUE: "fraction (0-1)"
+    source: null
+    source_document: null
+    publication_year: null
+    verified: false
+  P:
+    a: null
+    b: null
+    target_yield_Mg_per_ha: null
+    FUE: null
+    units:
+      a: "kg P2O5 / Mg lint yield"
+      b: "dimensionless"
+      target_yield: "Mg/ha"
+      FUE: "fraction (0-1)"
+    source: null
+    source_document: null
+    publication_year: null
+    verified: false
+  K:
+    a: null
+    b: null
+    target_yield_Mg_per_ha: null
+    FUE: null
+    units:
+      a: "kg K2O / Mg lint yield"
+      b: "dimensionless"
+      target_yield: "Mg/ha"
+      FUE: "fraction (0-1)"
+    source: null
+    source_document: null
+    publication_year: null
+    verified: false

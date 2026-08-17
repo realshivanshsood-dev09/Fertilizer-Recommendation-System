@@ -1,0 +1,60 @@
+# ── Environment & Secrets ─────────────────────────────────────────────────────
+backend/.env
+.env
+.env.*
+!.env.example
+
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+*.egg
+dist/
+build/
+*.whl
+
+# ── Virtual Environments ──────────────────────────────────────────────────────
+.venv/
+venv/
+env/
+ENV/
+
+# ── IDE / Editor ──────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ── Testing / Linting ────────────────────────────────────────────────────────
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# ── Database (local dev) ──────────────────────────────────────────────────────
+backend/*.db
+*.sqlite3
+
+# ── ML model artifacts ───────────────────────────────────────────────────────
+ml/models/*.pkl
+ml/models/*.json
+ml/models/*.ubj
+ml/models/*.xgb
+ml/models/*.joblib
+
+# ── Frontend ──────────────────────────────────────────────────────────────────
+node_modules/
+frontend/dist/
+frontend/build/
+frontend/.next/
+
+# ── Temporary / OS ────────────────────────────────────────────────────────────
+*.log
+*.tmp
+*.bak

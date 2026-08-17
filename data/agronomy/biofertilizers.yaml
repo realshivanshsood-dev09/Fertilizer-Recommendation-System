@@ -1,0 +1,50 @@
+# Biofertilizer Recommendations — Malwa Region, Punjab
+# =====================================================
+# This file is the SINGLE SOURCE OF TRUTH for biofertilizer recommendations.
+# The Python service loads this file at startup.
+#
+# ⚠️  ALL VALUES ARE NULL/EMPTY PLACEHOLDERS.
+# DO NOT FILL WITH INVENTED VALUES.
+#
+# Source: PAU Ludhiana crop production guides (Kheti Sandesh)
+
+_metadata:
+  schema_version: "1.0"
+  geographic_scope: "Malwa region, Punjab"
+  source: null                    # e.g. "PAU Ludhiana"
+  source_document: null           # e.g. "Kheti Sandesh 2024"
+  publication_year: null
+  verified: false
+  last_updated: null
+  notes: "All recommendations are empty placeholders awaiting PAU biofertilizer data."
+
+crops:
+  wheat:
+    inoculants: []                # e.g. ["Azotobacter chroococcum", "PSB (Pseudomonas striata)"]
+    application_method: null      # e.g. "seed_treatment" or "soil_application"
+    timing: null                  # e.g. "at_sowing"
+    dose: null                    # e.g. "250 g per 10 kg seed"
+    source: null
+    source_document: null
+    publication_year: null
+    verified: false
+
+  rice:
+    inoculants: []                # e.g. ["BGA", "Azospirillum"]
+    application_method: null
+    timing: null
+    dose: null
+    source: null
+    source_document: null
+    publication_year: null
+    verified: false
+
+  cotton:
+    inoculants: []                # e.g. ["Azotobacter", "PSB"]
+    application_method: null
+    timing: null
+    dose: null
+    source: null
+    source_document: null
+    publication_year: null
+    verified: false

@@ -1,0 +1,63 @@
+"""
+SIH 2026 — Fertilizer Recommendation System
+FastAPI application entry point.
+"""
+
+from __future__ import annotations
+
+from contextlib import asynccontextmanager
+
+import structlog
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from app.api.routes import health, recommend
+from app.core.config import settings
+from app.core.logging import configure_logging
+
+configure_logging()
+log = structlog.get_logger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(application: FastAPI):
+    log.info(
+        "application_startup",
+        version=settings.APP_VERSION,
+        env=settings.APP_ENV,
+        ml_enabled=settings.ML_ENABLED,
+    )
+    yield
+    log.info("application_shutdown")
+
+
+def create_application() -> FastAPI:
+    application = FastAPI(
+        title="Fertilizer Recommendation System — SIH 2026",
+        description=(
+            "Two-layer fertilizer recommendation system for the Malwa region of Punjab. "
+            "Layer 1: STCR agronomic baseline. Layer 2: ML correction (residual). "
+            "**Phase 1 scaffolding — scientific placeholders clearly marked.**"
+        ),
+        version=settings.APP_VERSION,
+        docs_url="/docs",
+        redoc_url="/redoc",
+        lifespan=lifespan,
+    )
+
+    # CORS — restrict in production via environment variable
+    application.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.CORS_ORIGINS,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+    application.include_router(health.router, prefix="/api/v1", tags=["Health"])
+    application.include_router(recommend.router, prefix="/api/v1", tags=["Recommend"])
+
+    return application
+
+
+app = create_application()

@@ -1,0 +1,113 @@
+# District Soil Averages — Malwa Region, Punjab
+# ================================================
+# This file is the SINGLE SOURCE OF TRUTH for district-level soil averages.
+# The Python service loads this file at startup.
+#
+# ⚠️  ALL VALUES ARE NULL PLACEHOLDERS.
+# DO NOT USE FOR AGRONOMIC DECISIONS.
+# DO NOT FILL WITH INVENTED VALUES.
+#
+# Source: Punjab Soil Health Card portal (soilhealth.dac.gov.in)
+#         PAU soil survey reports
+
+_metadata:
+  schema_version: "1.0"
+  geographic_scope: "Malwa region, Punjab"
+  source: null                    # e.g. "Punjab SHC Portal"
+  source_document: null
+  publication_year: null
+  soil_test_method: null          # e.g. "Alkaline KMnO4 for N, Olsen's for P"
+  verified: false
+  last_updated: null
+  notes: "All values are null placeholders awaiting SHC survey data."
+
+districts:
+  Bathinda:
+    N_kg_per_ha: null
+    P2O5_kg_per_ha: null
+    K2O_kg_per_ha: null
+    pH: null
+    organic_carbon_pct: null
+    survey_year: null
+    sample_count: null
+    source: null
+    source_document: null
+    verified: false
+    units:
+      N: "kg/ha (available N, alkaline KMnO4)"
+      P: "kg/ha (available P2O5, Olsen's)"
+      K: "kg/ha (available K2O, ammonium acetate)"
+      pH: "1:2 water suspension"
+      organic_carbon: "% (Walkley-Black)"
+
+  Mansa:
+    N_kg_per_ha: null
+    P2O5_kg_per_ha: null
+    K2O_kg_per_ha: null
+    pH: null
+    organic_carbon_pct: null
+    survey_year: null
+    sample_count: null
+    source: null
+    source_document: null
+    verified: false
+    units:
+      N: "kg/ha (available N, alkaline KMnO4)"
+      P: "kg/ha (available P2O5, Olsen's)"
+      K: "kg/ha (available K2O, ammonium acetate)"
+      pH: "1:2 water suspension"
+      organic_carbon: "% (Walkley-Black)"
+
+  Muktsar:
+    N_kg_per_ha: null
+    P2O5_kg_per_ha: null
+    K2O_kg_per_ha: null
+    pH: null
+    organic_carbon_pct: null
+    survey_year: null
+    sample_count: null
+    source: null
+    source_document: null
+    verified: false
+    units:
+      N: "kg/ha (available N, alkaline KMnO4)"
+      P: "kg/ha (available P2O5, Olsen's)"
+      K: "kg/ha (available K2O, ammonium acetate)"
+      pH: "1:2 water suspension"
+      organic_carbon: "% (Walkley-Black)"
+
+  Moga:
+    N_kg_per_ha: null
+    P2O5_kg_per_ha: null
+    K2O_kg_per_ha: null
+    pH: null
+    organic_carbon_pct: null
+    survey_year: null
+    sample_count: null
+    source: null
+    source_document: null
+    verified: false
+    units:
+      N: "kg/ha (available N, alkaline KMnO4)"
+      P: "kg/ha (available P2O5, Olsen's)"
+      K: "kg/ha (available K2O, ammonium acetate)"
+      pH: "1:2 water suspension"
+      organic_carbon: "% (Walkley-Black)"
+
+  Faridkot:
+    N_kg_per_ha: null
+    P2O5_kg_per_ha: null
+    K2O_kg_per_ha: null
+    pH: null
+    organic_carbon_pct: null
+    survey_year: null
+    sample_count: null
+    source: null
+    source_document: null
+    verified: false
+    units:
+      N: "kg/ha (available N, alkaline KMnO4)"
+      P: "kg/ha (available P2O5, Olsen's)"
+      K: "kg/ha (available K2O, ammonium acetate)"
+      pH: "1:2 water suspension"
+      organic_carbon: "% (Walkley-Black)"
