@@ -14,6 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes import health, recommend
 from app.core.config import settings
 from app.core.logging import configure_logging
+from app.db.session import close_db, init_db
 
 configure_logging()
 log = structlog.get_logger(__name__)
@@ -21,13 +22,23 @@ log = structlog.get_logger(__name__)
 
 @asynccontextmanager
 async def lifespan(application: FastAPI):
+    # ── Startup ───────────────────────────────────────────────────────────────
     log.info(
         "application_startup",
         version=settings.APP_VERSION,
         env=settings.APP_ENV,
         ml_enabled=settings.ML_ENABLED,
     )
+    await init_db()
+    log.info(
+        "database_ready",
+        url_scheme=settings.DATABASE_URL.split("://")[0],
+    )
+
     yield
+
+    # ── Shutdown ──────────────────────────────────────────────────────────────
+    await close_db()
     log.info("application_shutdown")
 
 
@@ -37,7 +48,7 @@ def create_application() -> FastAPI:
         description=(
             "Two-layer fertilizer recommendation system for the Malwa region of Punjab. "
             "Layer 1: STCR agronomic baseline. Layer 2: ML correction (residual). "
-            "**Phase 1 scaffolding — scientific placeholders clearly marked.**"
+            "**Phase 2: PostgreSQL/PostGIS database architecture added.**"
         ),
         version=settings.APP_VERSION,
         docs_url="/docs",

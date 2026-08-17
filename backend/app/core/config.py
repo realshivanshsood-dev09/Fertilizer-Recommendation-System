@@ -25,6 +25,8 @@ class Settings(BaseSettings):
 
     # Database
     DATABASE_URL: str = "sqlite+aiosqlite:///./fertilizer_rec_dev.db"
+    DB_ECHO: bool = False           # SQLAlchemy query logging — enable only for debugging
+    DB_POOL_SIZE: int = 5           # Ignored for SQLite; effective only for PostgreSQL
 
     # CORS
     CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:5173"]
