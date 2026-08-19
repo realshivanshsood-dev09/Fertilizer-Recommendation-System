@@ -1,13 +1,12 @@
 """
 Tests for FertilizerTranslationService.
 Verifies:
-  - N-only translation (Urea only)
-  - N + P translation (DAP + Urea)
+  - N-only translation (Urea only) with statutory price calculation
+  - N + P translation (DAP + Urea) with subsidized benchmark price calculation
   - N + P + K translation (DAP + Urea + MOP)
   - No negative quantities
   - Total nutrient coverage >= required nutrients
   - Standards provenance (FCO 1985)
-  - Price is nullable / unverified
   - Application timing splits for Wheat and Rice
 """
 
@@ -26,10 +25,11 @@ def service() -> FertilizerTranslationService:
 
 class TestFertilizerTranslationService:
 
-    def test_n_only_translation(self, service):
+    def test_n_only_translation_and_cost(self, service):
         """
         Required: 92 kg N/ha, 0 kg P2O5, 0 kg K2O
-        Expected: Urea only = 92 / 0.46 = 200.0 kg/ha = 200 / 45 = 4.44 bags/ha
+        Expected: Urea only = 92 / 0.46 = 200.0 kg/ha = 4.44 bags/ha
+        Cost: 200.0 kg * ₹5.92/kg = ₹1,184.00
         """
         products, cost = service.translate(Crop.WHEAT, N_kg_per_ha=92.0, P2O5_kg_per_ha=0.0, K2O_kg_per_ha=0.0)
         assert len(products) == 1
@@ -40,16 +40,18 @@ class TestFertilizerTranslationService:
         assert urea.n_contribution_kg_ha == pytest.approx(92.0, rel=1e-2)
         assert urea.p2o5_contribution_kg_ha == 0.0
         assert urea.k2o_contribution_kg_ha == 0.0
-        assert cost is None  # price nullable
+        assert urea.unit_cost_inr_per_kg == 5.92
+        assert cost == pytest.approx(1184.0, rel=1e-2)
 
     def test_np_translation_with_dap_and_urea(self, service):
         """
         Required: 100 kg N/ha, 46 kg P2O5/ha, 0 kg K2O
         1. DAP: 46 / 0.46 = 100 kg DAP/ha (2.0 bags/ha).
            N from DAP = 100 * 0.18 = 18.0 kg N.
-           Remaining N = 100 - 18 = 82 kg N.
-        2. Urea: 82 / 0.46 = 178.26 kg Urea/ha (3.96 bags/ha).
-           N from Urea = 178.26 * 0.46 = 82.0 kg N.
+           DAP cost = 100 * ₹27.00 = ₹2,700.00
+        2. Urea: (100 - 18) / 0.46 = 178.26 kg Urea/ha (3.96 bags/ha).
+           Urea cost = 178.26 * ₹5.92 = ₹1,055.30
+        Total Cost = ₹3,755.30
         """
         products, cost = service.translate(Crop.WHEAT, N_kg_per_ha=100.0, P2O5_kg_per_ha=46.0, K2O_kg_per_ha=0.0)
         assert len(products) == 2
@@ -59,14 +61,16 @@ class TestFertilizerTranslationService:
         assert dap.quantity_kg_per_ha == pytest.approx(100.0, rel=1e-2)
         assert dap.p2o5_contribution_kg_ha == pytest.approx(46.0, rel=1e-2)
         assert dap.n_contribution_kg_ha == pytest.approx(18.0, rel=1e-2)
+        assert dap.unit_cost_inr_per_kg == 27.00
 
         assert urea.quantity_kg_per_ha == pytest.approx(178.26, rel=1e-2)
         assert urea.n_contribution_kg_ha == pytest.approx(82.0, rel=1e-2)
+        assert urea.unit_cost_inr_per_kg == 5.92
 
-        # Check total nutrient coverage
         total_n = dap.n_contribution_kg_ha + urea.n_contribution_kg_ha
         assert total_n >= 100.0 - 0.1
         assert dap.p2o5_contribution_kg_ha >= 46.0 - 0.1
+        assert cost == pytest.approx(3755.30, rel=1e-2)
 
     def test_npk_full_translation(self, service):
         """
@@ -82,11 +86,14 @@ class TestFertilizerTranslationService:
         assert mop.quantity_kg_per_ha == pytest.approx(50.0, rel=1e-2)
         assert mop.bags_per_ha == pytest.approx(1.0, rel=1e-2)
         assert mop.k2o_contribution_kg_ha == pytest.approx(30.0, rel=1e-2)
+        assert mop.unit_cost_inr_per_kg == 33.00
 
-        # Non-negative check
         for p in products:
             assert p.quantity_kg_per_ha >= 0.0
             assert p.bags_per_ha >= 0.0
+
+        assert cost is not None
+        assert cost > 0.0
 
     def test_empty_when_all_nutrients_none_or_zero(self, service):
         products, cost = service.translate(Crop.COTTON, N_kg_per_ha=None, P2O5_kg_per_ha=None, K2O_kg_per_ha=None)

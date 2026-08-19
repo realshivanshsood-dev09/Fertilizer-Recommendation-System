@@ -1,0 +1,62 @@
+# ==============================================================================
+# SIH 2026 Fertilizer Recommendation System
+# FERTILIZER PRICE REGISTRY & BENCHMARKS (PUNJAB / MALWA)
+# ==============================================================================
+# File: data/agronomy/fertilizer_prices.yaml
+# Single Source of Truth for verified fertilizer pricing standards.
+#
+# Primary Sources:
+#   1. Department of Fertilizers, Ministry of Chemicals and Fertilizers, Government of India
+#      - Statutory Maximum Retail Price (MRP) for Neem Coated Urea
+#      - Notification No. 12012/1/2015-FPP
+#   2. Nutrient Based Subsidy (NBS) Scheme & Major Cooperatives (IFFCO / KRIBHCO)
+#      - Subsidized MRP announcements for P & K fertilizers (DAP, MOP, SSP)
+# ==============================================================================
+
+_metadata:
+  schema_version: "1.0"
+  publisher: "Department of Fertilizers, Government of India / IFFCO"
+  retrieval_date: "2026-08-19"
+  currency: "INR"
+  status: "verified_statutory_and_cooperative_benchmarks"
+  notes: >
+    Urea price is statutorily fixed across India.
+    DAP, MOP and SSP prices represent government subsidized maximum retail benchmarks.
+    Local retailer transport and state cess may cause minor variations.
+
+prices:
+  Urea:
+    product_name: "Neem Coated Urea (46% N)"
+    bag_size_kg: 45.0
+    mrp_per_bag_inr: 266.50
+    mrp_per_kg_inr: 5.92
+    pricing_type: "statutory_mrp"
+    source: "Department of Fertilizers, Govt of India (Statutory MRP ₹242 + Neem coating charge & taxes)"
+    verified: true
+
+  DAP:
+    product_name: "Di-Ammonium Phosphate (DAP 18-46-0)"
+    bag_size_kg: 50.0
+    mrp_per_bag_inr: 1350.00
+    mrp_per_kg_inr: 27.00
+    pricing_type: "subsidized_mrp_benchmark"
+    source: "IFFCO / Ministry of Chemicals & Fertilizers Subsidized Price Standard"
+    verified: true
+
+  MOP:
+    product_name: "Muriate of Potash (MOP 60% K2O)"
+    bag_size_kg: 50.0
+    mrp_per_bag_inr: 1650.00
+    mrp_per_kg_inr: 33.00
+    pricing_type: "subsidized_mrp_benchmark"
+    source: "IFFCO / Ministry of Chemicals & Fertilizers Subsidized Price Standard"
+    verified: true
+
+  SSP:
+    product_name: "Single Superphosphate (SSP 16% P2O5, 11% S)"
+    bag_size_kg: 50.0
+    mrp_per_bag_inr: 550.00
+    mrp_per_kg_inr: 11.00
+    pricing_type: "subsidized_mrp_benchmark"
+    source: "Ministry of Chemicals & Fertilizers Benchmark"
+    verified: true

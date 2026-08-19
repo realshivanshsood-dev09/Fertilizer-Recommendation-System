@@ -9,14 +9,17 @@ Orchestrates the full recommendation pipeline:
     → ml_correction (Disabled / Additive Residual Correction)
     → fertilizer_translation (Commercial Products & Split Timing)
     → biofertilizer
-    → cost_calculation
+    → cost_calculation (Verified Statutory/Subsidized Prices)
     → explanation assembly
+    → optional DB persistence
     → RecommendResponse
 """
 
 from __future__ import annotations
 
 import structlog
+from typing import Optional
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.constants import Crop, SoilSource
 from app.schemas.request import RecommendRequest
@@ -31,6 +34,7 @@ from app.services.biofertilizer import BiofertilizerService
 from app.services.cost_calculation import CostCalculationService
 from app.services.fertilizer_translation import FertilizerTranslationService
 from app.services.ml_correction import MLCorrectionService
+from app.services.recommendation_repository import persist_recommendation
 from app.services.soil_resolution import SoilProfile, SoilResolutionService
 from app.services.stcr_service import STCRService
 
@@ -161,7 +165,10 @@ def _build_explanation(
     )
 
 
-async def run_pipeline(request: RecommendRequest) -> RecommendResponse:
+async def run_pipeline(
+    request: RecommendRequest,
+    session: Optional[AsyncSession] = None,
+) -> RecommendResponse:
     log.info(
         "pipeline_start",
         crop=request.crop.value,
@@ -220,7 +227,7 @@ async def run_pipeline(request: RecommendRequest) -> RecommendResponse:
     )
 
     # Step 6 — Fertilizer product translation (Commercial products & bags/ha)
-    products, _ = _translation_service.translate(
+    products, total_cost = _translation_service.translate(
         crop=request.crop,
         N_kg_per_ha=final.N_kg_per_ha,
         P2O5_kg_per_ha=final.P2O5_kg_per_ha,
@@ -235,15 +242,13 @@ async def run_pipeline(request: RecommendRequest) -> RecommendResponse:
         crop=request.crop, district=request.district
     )
 
-    # Step 9 — Cost (Nullable until official prices locked)
-    cost = _cost_service.calculate(products)
+    # Step 9 — Cost
+    cost = _cost_service.calculate(products) if total_cost is None else total_cost
 
     # Step 10 — Explanation
     explanation = _build_explanation(request, soil, stcr, ml_used=ml_adj.model_enabled)
 
-    log.info("pipeline_complete", is_placeholder=is_placeholder_resp)
-
-    return RecommendResponse(
+    response = RecommendResponse(
         crop=request.crop,
         district=request.district,
         season=request.season,
@@ -264,3 +269,10 @@ async def run_pipeline(request: RecommendRequest) -> RecommendResponse:
         pipeline_version="0.2.0-stcr-live",
         is_placeholder=is_placeholder_resp,
     )
+
+    # Step 11 — Optional DB persistence (if session provided)
+    if session is not None:
+        await persist_recommendation(request, response, session)
+
+    log.info("pipeline_complete", is_placeholder=is_placeholder_resp, total_cost=cost)
+    return response

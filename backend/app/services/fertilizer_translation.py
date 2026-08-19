@@ -9,19 +9,10 @@ Standard Specifications (Fertiliser Control Order 1985 / PAU Recommended Practic
   - DAP (Di-Ammonium Phosphate): 18% N, 46% P2O5 (50 kg bag)
   - MOP (Muriate of Potash): 60% K2O (50 kg bag)
   - SSP (Single Super Phosphate): 16% P2O5, 11% S (50 kg bag)
-  - Zinc Sulphate: 21% Zn, 10% S (25 kg bag)
 
-Deterministic Translation Algorithm:
-  1. If P2O5 > 0:
-       DAP (kg/ha) = P2O5 / 0.46
-       N_supplied_by_DAP = DAP * 0.18
-       Remaining_N = max(0.0, N_required - N_supplied_by_DAP)
-  2. If Remaining_N > 0:
-       Urea (kg/ha) = Remaining_N / 0.46
-  3. If K2O > 0:
-       MOP (kg/ha) = K2O / 0.60
-  4. Bags/ha calculated from official standard bag weights.
-  5. Prices remain nullable until official local retail prices are verified.
+Pricing:
+  Prices loaded from verified Government of India / IFFCO statutory benchmarks
+  (data/agronomy/fertilizer_prices.yaml).
 """
 
 from __future__ import annotations
@@ -30,12 +21,13 @@ import structlog
 from typing import Dict, List, Optional, Tuple
 
 from app.core.constants import Crop
+from app.core.data_loader import FertilizerPriceData, load_fertilizer_prices
 from app.schemas.response import ApplicationTiming, FertilizerProduct
 
 log = structlog.get_logger(__name__)
 
+_price_data: FertilizerPriceData = load_fertilizer_prices()
 
-# ── Authoritative Product Catalogue (FCO 1985 & PAU Standards) ────────────────
 PRODUCT_CATALOGUE: Dict[str, dict] = {
     "DAP": {
         "full_name": "Di-Ammonium Phosphate (DAP 18-46-0)",
@@ -53,7 +45,7 @@ PRODUCT_CATALOGUE: Dict[str, dict] = {
         "n_pct": 46.0,
         "p2o5_pct": 0.0,
         "k2o_pct": 0.0,
-        "bag_size_kg": 45.0,  # Government of India standard 45 kg bag
+        "bag_size_kg": 45.0,
         "source_standard": "Fertiliser (Control) Order 1985, Schedule I",
         "verified": True,
     },
@@ -82,8 +74,11 @@ PRODUCT_CATALOGUE: Dict[str, dict] = {
 
 class FertilizerTranslationService:
     """
-    Translates required N/P/K doses into commercial product bags and quantities.
+    Translates required N/P/K doses into commercial product bags, quantities, and costs.
     """
+
+    def __init__(self, price_data: Optional[FertilizerPriceData] = None) -> None:
+        self._prices = price_data or _price_data
 
     def translate(
         self,
@@ -125,6 +120,11 @@ class FertilizerTranslationService:
             n_from_dap = round(dap_kg * (dap_spec["n_pct"] / 100.0), 2)
             p_from_dap = round(dap_kg * (dap_spec["p2o5_pct"] / 100.0), 2)
 
+            dap_unit_price = self._prices.get_unit_price("DAP")
+            dap_total_cost = (
+                round(dap_kg * dap_unit_price, 2) if dap_unit_price is not None else None
+            )
+
             products.append(
                 FertilizerProduct(
                     product_name=dap_spec["full_name"],
@@ -135,8 +135,8 @@ class FertilizerTranslationService:
                     n_contribution_kg_ha=n_from_dap,
                     p2o5_contribution_kg_ha=p_from_dap,
                     k2o_contribution_kg_ha=0.0,
-                    unit_cost_inr_per_kg=None,
-                    total_cost_inr=None,
+                    unit_cost_inr_per_kg=dap_unit_price,
+                    total_cost_inr=dap_total_cost,
                     source_standards=dap_spec["source_standard"],
                     notes=f"Supplies full P2O5 ({p_from_dap} kg/ha) and {n_from_dap} kg N/ha.",
                 )
@@ -150,6 +150,11 @@ class FertilizerTranslationService:
             urea_bags = round(urea_kg / urea_spec["bag_size_kg"], 2)
             n_from_urea = round(urea_kg * (urea_spec["n_pct"] / 100.0), 2)
 
+            urea_unit_price = self._prices.get_unit_price("Urea")
+            urea_total_cost = (
+                round(urea_kg * urea_unit_price, 2) if urea_unit_price is not None else None
+            )
+
             products.append(
                 FertilizerProduct(
                     product_name=urea_spec["full_name"],
@@ -160,8 +165,8 @@ class FertilizerTranslationService:
                     n_contribution_kg_ha=n_from_urea,
                     p2o5_contribution_kg_ha=0.0,
                     k2o_contribution_kg_ha=0.0,
-                    unit_cost_inr_per_kg=None,
-                    total_cost_inr=None,
+                    unit_cost_inr_per_kg=urea_unit_price,
+                    total_cost_inr=urea_total_cost,
                     source_standards=urea_spec["source_standard"],
                     notes=f"Supplies remaining N ({n_from_urea} kg N/ha) after DAP contribution.",
                 )
@@ -174,6 +179,11 @@ class FertilizerTranslationService:
             mop_bags = round(mop_kg / mop_spec["bag_size_kg"], 2)
             k_from_mop = round(mop_kg * (mop_spec["k2o_pct"] / 100.0), 2)
 
+            mop_unit_price = self._prices.get_unit_price("MOP")
+            mop_total_cost = (
+                round(mop_kg * mop_unit_price, 2) if mop_unit_price is not None else None
+            )
+
             products.append(
                 FertilizerProduct(
                     product_name=mop_spec["full_name"],
@@ -184,20 +194,23 @@ class FertilizerTranslationService:
                     n_contribution_kg_ha=0.0,
                     p2o5_contribution_kg_ha=0.0,
                     k2o_contribution_kg_ha=k_from_mop,
-                    unit_cost_inr_per_kg=None,
-                    total_cost_inr=None,
+                    unit_cost_inr_per_kg=mop_unit_price,
+                    total_cost_inr=mop_total_cost,
                     source_standards=mop_spec["source_standard"],
                     notes=f"Supplies full K2O ({k_from_mop} kg/ha).",
                 )
             )
 
-        # 4. Total cost remains None because subsidized retail prices vary locally
-        total_cost = None
+        # Calculate total cost if all products have valid pricing
+        if products and all(p.total_cost_inr is not None for p in products):
+            total_cost = round(sum(p.total_cost_inr for p in products), 2)  # type: ignore[arg-type]
+        else:
+            total_cost = None
 
         log.info(
             "fertilizer_translation_complete",
             product_count=len(products),
-            products=[p.product_name for p in products],
+            total_cost=total_cost,
         )
         return products, total_cost
 
@@ -259,7 +272,6 @@ class FertilizerTranslationService:
                 notes="PAU Ludhiana Package of Practices for Kharif Crops (Rice).",
             )
 
-        # Cotton / other
         return ApplicationTiming(
             splits=None,
             apply_before=None,

@@ -30,6 +30,7 @@ _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 STCR_COEFFICIENTS_PATH = _PROJECT_ROOT / "agronomy" / "stcr" / "stcr_coefficients.yaml"
 DISTRICT_AVERAGES_PATH = _PROJECT_ROOT / "data" / "soil" / "district_averages.yaml"
 BIOFERTILIZERS_PATH = _PROJECT_ROOT / "data" / "agronomy" / "biofertilizers.yaml"
+FERTILIZER_PRICES_PATH = _PROJECT_ROOT / "data" / "agronomy" / "fertilizer_prices.yaml"
 
 
 def _load_yaml(path: Path, label: str) -> Dict[str, Any]:
@@ -130,7 +131,6 @@ class STCRCoefficients:
     def get_source_note(self, crop_name: str) -> str:
         """Returns the source field for a crop, or a placeholder string."""
         crop_data = self._data.get(crop_name, {})
-        # Check per-nutrient sources or crop-level
         for nutrient in ("N", "P", "K"):
             n_data = crop_data.get(nutrient, {})
             src = n_data.get("source")
@@ -149,10 +149,6 @@ def load_stcr_coefficients(
     path: Optional[Path] = None,
     reload: bool = False,
 ) -> STCRCoefficients:
-    """
-    Load STCR coefficients from YAML with caching.
-    Returns an STCRCoefficients wrapper with safe accessors.
-    """
     global _CACHED_STCR_COEFFICIENTS
     if path is None and _CACHED_STCR_COEFFICIENTS is not None and not reload:
         return _CACHED_STCR_COEFFICIENTS
@@ -182,7 +178,6 @@ class DistrictAverages:
         self._data = data
         self._path = path
         self._metadata = data.get("_metadata", {})
-        # Districts may be under a 'districts' key or at top-level
         self._districts = data.get("districts", {})
 
     @property
@@ -190,20 +185,11 @@ class DistrictAverages:
         return self._metadata
 
     def get_district(self, district_name: str) -> Dict[str, Any]:
-        """
-        Returns the soil average dict for a given district.
-        Returns empty dict if not found.
-        """
         return self._districts.get(district_name, {})
 
     def get_soil_values(
         self, district_name: str
     ) -> Dict[str, Optional[float]]:
-        """
-        Returns {nitrogen, phosphorus, potassium, ph, organic_carbon}
-        mapped from the YAML field names.
-        All values may be None if not yet populated.
-        """
         d = self.get_district(district_name)
         return {
             "nitrogen": d.get("N_kg_per_ha"),
@@ -221,10 +207,6 @@ def load_district_averages(
     path: Optional[Path] = None,
     reload: bool = False,
 ) -> DistrictAverages:
-    """
-    Load district soil averages from YAML with caching.
-    Returns a DistrictAverages wrapper with safe accessors.
-    """
     global _CACHED_DISTRICT_AVERAGES
     if path is None and _CACHED_DISTRICT_AVERAGES is not None and not reload:
         return _CACHED_DISTRICT_AVERAGES
@@ -256,10 +238,6 @@ class BiofertilizerData:
         return self._metadata
 
     def get_crop(self, crop_name: str) -> Dict[str, Any]:
-        """
-        Returns biofertilizer data for a given crop.
-        Returns empty dict if not found.
-        """
         return self._crops.get(crop_name, {})
 
 
@@ -270,10 +248,6 @@ def load_biofertilizer_data(
     path: Optional[Path] = None,
     reload: bool = False,
 ) -> BiofertilizerData:
-    """
-    Load biofertilizer recommendations from YAML with caching.
-    Returns a BiofertilizerData wrapper with safe accessors.
-    """
     global _CACHED_BIOFERTILIZER_DATA
     if path is None and _CACHED_BIOFERTILIZER_DATA is not None and not reload:
         return _CACHED_BIOFERTILIZER_DATA
@@ -284,4 +258,49 @@ def load_biofertilizer_data(
     log.info("biofertilizer_data_loaded", path=str(p))
     if path is None:
         _CACHED_BIOFERTILIZER_DATA = loaded
+    return loaded
+
+
+# ── Fertilizer Prices ────────────────────────────────────────────────────────
+
+class FertilizerPriceData:
+    """
+    Loaded fertilizer price benchmark data.
+    """
+
+    def __init__(self, data: Dict[str, Any], path: Path) -> None:
+        self._data = data
+        self._path = path
+        self._metadata = data.get("_metadata", {})
+        self._prices = data.get("prices", {})
+
+    @property
+    def metadata(self) -> Dict[str, Any]:
+        return self._metadata
+
+    def get_price(self, product_key: str) -> Dict[str, Any]:
+        return self._prices.get(product_key, {})
+
+    def get_unit_price(self, product_key: str) -> Optional[float]:
+        p = self.get_price(product_key)
+        return p.get("mrp_per_kg_inr")
+
+
+_CACHED_FERTILIZER_PRICES: Optional[FertilizerPriceData] = None
+
+
+def load_fertilizer_prices(
+    path: Optional[Path] = None,
+    reload: bool = False,
+) -> FertilizerPriceData:
+    global _CACHED_FERTILIZER_PRICES
+    if path is None and _CACHED_FERTILIZER_PRICES is not None and not reload:
+        return _CACHED_FERTILIZER_PRICES
+
+    p = path or FERTILIZER_PRICES_PATH
+    data = _load_yaml(p, "fertilizer_prices")
+    loaded = FertilizerPriceData(data, p)
+    log.info("fertilizer_prices_loaded", path=str(p))
+    if path is None:
+        _CACHED_FERTILIZER_PRICES = loaded
     return loaded
