@@ -1,5 +1,5 @@
 """
-Pydantic response schemas for the /recommend endpoint.
+Pydantic response schemas for the /recommend and /validation endpoints.
 All numerical placeholders are typed Optional[float] and documented clearly.
 """
 
@@ -190,6 +190,23 @@ class ApplicationTiming(BaseModel):
     notes: str = "Application timing guidelines"
 
 
+class EvidenceMetadata(BaseModel):
+    """Agronomic evidence and field verification metadata."""
+
+    evidence_status: str = Field(
+        "unsupported",
+        description="calibration_verified | calibration_and_malwa_validated | unsupported_awaiting_calibration",
+    )
+    calibration_source: Optional[str] = None
+    validation_sources: List[str] = Field(default_factory=list)
+    malwa_validation_available: bool = False
+    evidence_strength: str = Field(
+        "insufficient_calibration",
+        description="high_with_regional_malwa_verification | moderate_alluvial_calibration | insufficient_calibration",
+    )
+    notes: Optional[str] = None
+
+
 class Explanation(BaseModel):
     """Human-readable explanation of the recommendation and its provenance."""
 
@@ -209,6 +226,10 @@ class Explanation(BaseModel):
     calculation_walkthrough: List[str] = Field(
         default_factory=list,
         description="Programmatic explanation of how each nutrient dose was derived",
+    )
+    evidence: Optional[EvidenceMetadata] = Field(
+        None,
+        description="Field verification and regional evidence metadata",
     )
     shap_top_features: Optional[Dict[str, float]] = None
 
@@ -304,6 +325,10 @@ class RecommendResponse(BaseModel):
     )
     application_timing: ApplicationTiming = Field(
         default_factory=ApplicationTiming,
+    )
+    evidence: Optional[EvidenceMetadata] = Field(
+        None,
+        description="Agronomic calibration and Malwa verification evidence",
     )
     explanation: Explanation
     pipeline_version: str = "0.2.0-stcr-live"

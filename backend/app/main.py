@@ -11,7 +11,7 @@ import structlog
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import health, recommend
+from app.api.routes import health, recommend, validation
 from app.core.config import settings
 from app.core.logging import configure_logging
 from app.db.session import close_db, init_db
@@ -46,9 +46,8 @@ def create_application() -> FastAPI:
     application = FastAPI(
         title="Fertilizer Recommendation System — SIH 2026",
         description=(
-            "Two-layer fertilizer recommendation system for the Malwa region of Punjab. "
-            "Layer 1: STCR agronomic baseline. Layer 2: ML correction (residual). "
-            "**Phase 2: PostgreSQL/PostGIS database architecture added.**"
+            "Deterministic STCR agronomic recommendation and empirical validation engine "
+            "for the Malwa region of Punjab."
         ),
         version=settings.APP_VERSION,
         docs_url="/docs",
@@ -67,6 +66,7 @@ def create_application() -> FastAPI:
 
     application.include_router(health.router, prefix="/api/v1", tags=["Health"])
     application.include_router(recommend.router, prefix="/api/v1", tags=["Recommend"])
+    application.include_router(validation.router, prefix="/api/v1", tags=["Validation"])
 
     return application
 

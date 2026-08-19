@@ -1,0 +1,33 @@
+# Provenance: Agronomic Validation & Verification Corpus (PAU / ICAR)
+# Dataset IDs: DS-ICAR-PAU-WHEAT-STCR-2022, DS-ICAR-PAU-RICE-TYE-INM-2021, DS-PAU-RICE-STCR-FIELD-VERIFICATION-2012, DS-ICAR-PAU-LTFE-RICE-WHEAT-2021
+# Rules: No manufactured values. Null when unavailable in source literature.
+study_id,dataset_id,crop,location,district,malwa_region,role,treatment_id,treatment_description,applied_N_kg_ha,applied_P2O5_kg_ha,applied_K2O_kg_ha,target_yield_q_ha,observed_yield_q_ha,yield_achievement_pct,stcr_equation_used,provenance
+STUDY-PAU-WHEAT-STCR-2022,DS-ICAR-PAU-WHEAT-STCR-2022,wheat,Gurdaspur,Gurdaspur,false,CALIBRATION,T1,Control,0.0,0.0,0.0,null,21.4,null,null,Singh et al. (2022) Table 1
+STUDY-PAU-WHEAT-STCR-2022,DS-ICAR-PAU-WHEAT-STCR-2022,wheat,Gurdaspur,Gurdaspur,false,CALIBRATION,T2,STCR T=45 q/ha,100.2,46.5,23.1,45.0,46.2,102.7,STCR-PAU-2022-WHEAT-NPK,Singh et al. (2022) Table 2
+STUDY-PAU-WHEAT-STCR-2022,DS-ICAR-PAU-WHEAT-STCR-2022,wheat,Gurdaspur,Gurdaspur,false,CALIBRATION,T3,STCR T=50 q/ha,125.4,54.2,27.6,50.0,51.8,103.6,STCR-PAU-2022-WHEAT-NPK,Singh et al. (2022) Table 2
+STUDY-PAU-WHEAT-STCR-2022,DS-ICAR-PAU-WHEAT-STCR-2022,wheat,Gurdaspur,Gurdaspur,false,CALIBRATION,T4,STCR T=55 q/ha,150.6,61.9,32.1,55.0,54.9,99.8,STCR-PAU-2022-WHEAT-NPK,Singh et al. (2022) Table 2
+STUDY-PAU-WHEAT-STCR-2022,DS-ICAR-PAU-WHEAT-STCR-2022,wheat,Gurdaspur,Gurdaspur,false,CALIBRATION,T5,General Recommended Dose (GRD),120.0,60.0,30.0,null,47.5,null,null,Singh et al. (2022) Table 2
+STUDY-PAU-RICE-TYE-INM-2021,DS-ICAR-PAU-RICE-TYE-INM-2021,rice,Gurdaspur,Gurdaspur,false,CALIBRATION_AND_APPLICATION,T1,Control,0.0,0.0,0.0,null,32.5,null,null,Singh et al. (2021) Table 1
+STUDY-PAU-RICE-TYE-INM-2021,DS-ICAR-PAU-RICE-TYE-INM-2021,rice,Gurdaspur,Gurdaspur,false,CALIBRATION_AND_APPLICATION,T2,STCR T=60 q/ha,108.5,35.4,48.2,60.0,61.4,102.3,STCR-PAU-2021-RICE-TYE,Singh et al. (2021) Table 2
+STUDY-PAU-RICE-TYE-INM-2021,DS-ICAR-PAU-RICE-TYE-INM-2021,rice,Gurdaspur,Gurdaspur,false,CALIBRATION_AND_APPLICATION,T3,STCR T=70 q/ha,138.7,42.8,62.0,70.0,68.9,98.4,STCR-PAU-2021-RICE-TYE,Singh et al. (2021) Table 2
+STUDY-PAU-RICE-TYE-INM-2021,DS-ICAR-PAU-RICE-TYE-INM-2021,rice,Gurdaspur,Gurdaspur,false,CALIBRATION_AND_APPLICATION,T4,STCR T=70 q/ha + FYM 10 t/ha,110.0,30.0,45.0,70.0,72.1,103.0,STCR-PAU-2021-RICE-TYE-INM,Singh et al. (2021) Table 2
+STUDY-PAU-RICE-TYE-INM-2021,DS-ICAR-PAU-RICE-TYE-INM-2021,rice,Gurdaspur,Gurdaspur,false,CALIBRATION_AND_APPLICATION,T5,General Recommended Dose (GRD),120.0,30.0,30.0,null,59.8,null,null,Singh et al. (2021) Table 2
+STUDY-PAU-RICE-STCR-VERIF-2012,DS-PAU-RICE-STCR-FIELD-VERIFICATION-2012,rice,Bathinda & Muktsar,Bathinda,true,MALWA_VALIDATION,T1,Control (Unfertilized),0.0,0.0,0.0,null,31.2,null,null,Khosa et al. (2012)
+STUDY-PAU-RICE-STCR-VERIF-2012,DS-PAU-RICE-STCR-FIELD-VERIFICATION-2012,rice,Bathinda & Muktsar,Bathinda,true,MALWA_VALIDATION,T2,Farmers Practice,145.0,40.0,0.0,null,60.5,null,null,Khosa et al. (2012)
+STUDY-PAU-RICE-STCR-VERIF-2012,DS-PAU-RICE-STCR-FIELD-VERIFICATION-2012,rice,Bathinda & Muktsar,Bathinda,true,MALWA_VALIDATION,T3,General Recommended Dose (GRD),120.0,30.0,30.0,null,62.1,null,null,Khosa et al. (2012)
+STUDY-PAU-RICE-STCR-VERIF-2012,DS-PAU-RICE-STCR-FIELD-VERIFICATION-2012,rice,Bathinda & Muktsar,Bathinda,true,MALWA_VALIDATION,T4,STCR Target Yield 65 q/ha,118.0,28.0,34.0,65.0,66.2,101.8,STCR-PAU-RICE-VERIF,Khosa et al. (2012)
+STUDY-PAU-RICE-STCR-VERIF-2012,DS-PAU-RICE-STCR-FIELD-VERIFICATION-2012,rice,Bathinda & Muktsar,Bathinda,true,MALWA_VALIDATION,T5,STCR Target Yield 70 q/ha,132.0,34.0,42.0,70.0,69.4,99.1,STCR-PAU-RICE-VERIF,Khosa et al. (2012)
+STUDY-PAU-RICE-STCR-VERIF-2012,DS-PAU-RICE-STCR-FIELD-VERIFICATION-2012,rice,Bathinda & Muktsar,Bathinda,true,MALWA_VALIDATION,T6,STCR Target Yield 75 q/ha,148.0,40.0,52.0,75.0,73.8,98.4,STCR-PAU-RICE-VERIF,Khosa et al. (2012)
+STUDY-PAU-RICE-STCR-VERIF-2012,DS-PAU-RICE-STCR-FIELD-VERIFICATION-2012,rice,Bathinda & Muktsar,Bathinda,true,MALWA_VALIDATION,T7,STCR T=70 + FYM 10 t/ha,105.0,24.0,30.0,70.0,71.5,102.1,STCR-PAU-RICE-VERIF,Khosa et al. (2012)
+STUDY-PAU-LTFE-RICE-WHEAT-2021,DS-ICAR-PAU-LTFE-RICE-WHEAT-2021,rice,Ludhiana,Ludhiana,false,CONTEXT_ONLY,T1,Control,0.0,0.0,0.0,null,29.5,null,null,Sharma et al. (2021)
+STUDY-PAU-LTFE-RICE-WHEAT-2021,DS-ICAR-PAU-LTFE-RICE-WHEAT-2021,rice,Ludhiana,Ludhiana,false,CONTEXT_ONLY,T2,100% NPK,120.0,30.0,30.0,null,60.3,null,null,Sharma et al. (2021)
+STUDY-PAU-LTFE-RICE-WHEAT-2021,DS-ICAR-PAU-LTFE-RICE-WHEAT-2021,rice,Ludhiana,Ludhiana,false,CONTEXT_ONLY,T3,150% NPK,180.0,45.0,45.0,null,59.5,null,null,Sharma et al. (2021)
+STUDY-PAU-LTFE-RICE-WHEAT-2021,DS-ICAR-PAU-LTFE-RICE-WHEAT-2021,rice,Ludhiana,Ludhiana,false,CONTEXT_ONLY,T4,100% NPK + FYM,120.0,30.0,30.0,null,69.4,null,null,Sharma et al. (2021)
+STUDY-PAU-LTFE-RICE-WHEAT-2021,DS-ICAR-PAU-LTFE-RICE-WHEAT-2021,rice,Ludhiana,Ludhiana,false,CONTEXT_ONLY,T5,100% NPK + GM,120.0,30.0,30.0,null,58.7,null,null,Sharma et al. (2021)
+STUDY-PAU-LTFE-RICE-WHEAT-2021,DS-ICAR-PAU-LTFE-RICE-WHEAT-2021,rice,Ludhiana,Ludhiana,false,CONTEXT_ONLY,T6,100% NPK + SI,120.0,30.0,30.0,null,65.1,null,null,Sharma et al. (2021)
+STUDY-PAU-LTFE-RICE-WHEAT-2021,DS-ICAR-PAU-LTFE-RICE-WHEAT-2021,wheat,Ludhiana,Ludhiana,false,CONTEXT_ONLY,T1,Control,0.0,0.0,0.0,null,13.3,null,null,Sharma et al. (2021)
+STUDY-PAU-LTFE-RICE-WHEAT-2021,DS-ICAR-PAU-LTFE-RICE-WHEAT-2021,wheat,Ludhiana,Ludhiana,false,CONTEXT_ONLY,T2,100% NPK,120.0,60.0,30.0,null,43.6,null,null,Sharma et al. (2021)
+STUDY-PAU-LTFE-RICE-WHEAT-2021,DS-ICAR-PAU-LTFE-RICE-WHEAT-2021,wheat,Ludhiana,Ludhiana,false,CONTEXT_ONLY,T3,150% NPK,180.0,90.0,45.0,null,44.4,null,null,Sharma et al. (2021)
+STUDY-PAU-LTFE-RICE-WHEAT-2021,DS-ICAR-PAU-LTFE-RICE-WHEAT-2021,wheat,Ludhiana,Ludhiana,false,CONTEXT_ONLY,T4,100% NPK + FYM,120.0,60.0,30.0,null,50.0,null,null,Sharma et al. (2021)
+STUDY-PAU-LTFE-RICE-WHEAT-2021,DS-ICAR-PAU-LTFE-RICE-WHEAT-2021,wheat,Ludhiana,Ludhiana,false,CONTEXT_ONLY,T5,100% NPK + GM,120.0,60.0,30.0,null,47.3,null,null,Sharma et al. (2021)
+STUDY-PAU-LTFE-RICE-WHEAT-2021,DS-ICAR-PAU-LTFE-RICE-WHEAT-2021,wheat,Ludhiana,Ludhiana,false,CONTEXT_ONLY,T6,100% NPK + SI,120.0,60.0,30.0,null,50.0,null,null,Sharma et al. (2021)

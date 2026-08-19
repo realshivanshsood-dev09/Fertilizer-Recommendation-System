@@ -1,0 +1,86 @@
+# ==============================================================================
+# SIH 2026 Fertilizer Recommendation System
+# AGRONOMIC VALIDATION SUMMARY & EVIDENCE REGISTRY
+# ==============================================================================
+# File: data/processed/validation_summary.yaml
+#
+# Definitive audit of agronomic calibration and validation evidence across Punjab.
+# ==============================================================================
+
+_metadata:
+  report_date: "2026-08-19"
+  evaluation_scope: "Punjab State (Malwa and Central/Sub-montane Zones)"
+  engine_version: "0.2.0-stcr-live"
+  ml_status: "disabled_insufficient_plot_data"
+
+evidence_by_crop:
+  wheat:
+    status: "calibration_verified"
+    calibration_studies:
+      - study_id: "STUDY-PAU-WHEAT-STCR-2022"
+        dataset_id: "DS-ICAR-PAU-WHEAT-STCR-2022"
+        citation: "Singh, Mavi & Saini (2022). Indian J. Agric. Sci. 92(12): 1502–1505"
+        role: "CALIBRATION"
+        location: "Gurdaspur (Alluvial Inceptisol)"
+        observations: 5
+        target_yields_tested_q_ha: [45.0, 50.0, 55.0]
+        verified_equations:
+          FN: "3.78*T - 0.96*SN"
+          FP2O5: "1.54*T - 0.23*SP2O5"
+          FK2O: "0.95*T - 0.09*SK2O"
+    validation_studies:
+      - study_id: "STUDY-PAU-LTFE-RICE-WHEAT-2021"
+        dataset_id: "DS-ICAR-PAU-LTFE-RICE-WHEAT-2021"
+        citation: "Sharma, Dheri & Saini (2021). Indian J. Agric. Sci. 91(8): 1174–1179"
+        role: "CONTEXT_ONLY"
+        location: "Ludhiana"
+        observations: 6
+    malwa_direct_validation: false
+    malwa_status_note: "Wheat equation calibrated on alluvial soils (Typic Ustochrepts); direct Malwa multi-farm trials pending."
+
+  rice:
+    status: "calibration_and_malwa_validated"
+    calibration_studies:
+      - study_id: "STUDY-PAU-RICE-TYE-INM-2021"
+        dataset_id: "DS-ICAR-PAU-RICE-TYE-INM-2021"
+        citation: "Singh, Mavi & Saini (2021). Indian J. Agric. Sci. 91(6): 936–939"
+        role: "CALIBRATION_AND_APPLICATION"
+        location: "Gurdaspur"
+        observations: 5
+        target_yields_tested_q_ha: [60.0, 70.0]
+        verified_equations:
+          FN: "3.02*T - 0.63*SN"
+          FP2O5: "1.78*T - 8.37*SP"
+          FK2O: "2.75*T - 1.39*SK"
+    validation_studies:
+      - study_id: "STUDY-PAU-RICE-STCR-VERIF-2012"
+        dataset_id: "DS-PAU-RICE-STCR-FIELD-VERIFICATION-2012"
+        citation: "Khosa et al. (2012). Indian J. Fertilisers 8(2): 14–18"
+        role: "MALWA_VALIDATION"
+        location: "Bathinda, Sri Muktsar Sahib, Ferozepur (South-Western Punjab)"
+        observations: 7
+        target_yield_achievement: "Observed yields fell within +/- 10% of target yield"
+        net_return_benefit: "Demonstrated higher nutrient use efficiency and net profit over blanket recommendations"
+      - study_id: "STUDY-PAU-LTFE-RICE-WHEAT-2021"
+        dataset_id: "DS-ICAR-PAU-LTFE-RICE-WHEAT-2021"
+        citation: "Sharma, Dheri & Saini (2021). Indian J. Agric. Sci. 91(8): 1174–1179"
+        role: "CONTEXT_ONLY"
+        location: "Ludhiana"
+        observations: 6
+    malwa_direct_validation: true
+    malwa_status_note: "Direct on-farm validation confirmed in Malwa districts (Bathinda, Muktsar, Ferozepur) by PAU."
+
+  cotton:
+    status: "unsupported_awaiting_calibration"
+    calibration_studies: []
+    validation_studies: []
+    malwa_direct_validation: false
+    malwa_status_note: "PAU / AICRP calibration equations for Bt cotton on aridisols/alluvial soils remain unverified."
+
+summary_statistics:
+  total_studies: 4
+  total_observations: 29
+  malwa_observations: 7
+  crops_with_calibration: ["wheat", "rice"]
+  crops_with_malwa_validation: ["rice"]
+  unsupported_crops: ["cotton"]

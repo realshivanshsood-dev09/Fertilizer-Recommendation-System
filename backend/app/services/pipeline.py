@@ -10,6 +10,7 @@ Orchestrates the full recommendation pipeline:
     → fertilizer_translation (Commercial Products & Split Timing)
     → biofertilizer
     → cost_calculation (Verified Statutory/Subsidized Prices)
+    → validation evidence lookup
     → explanation & recommendation summary assembly
     → optional DB persistence
     → RecommendResponse
@@ -24,6 +25,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.constants import Crop, SoilSource
 from app.schemas.request import RecommendRequest
 from app.schemas.response import (
+    EvidenceMetadata,
     Explanation,
     FinalRecommendation,
     NutrientStatus,
@@ -38,6 +40,7 @@ from app.services.ml_correction import MLCorrectionService
 from app.services.recommendation_repository import persist_recommendation
 from app.services.soil_resolution import SoilProfile, SoilResolutionService
 from app.services.stcr_service import STCRService
+from app.services.validation_service import ValidationSummaryService
 
 log = structlog.get_logger(__name__)
 
@@ -48,6 +51,7 @@ _ml_service = MLCorrectionService()
 _translation_service = FertilizerTranslationService()
 _biofertilizer_service = BiofertilizerService()
 _cost_service = CostCalculationService()
+_validation_service = ValidationSummaryService()
 
 
 def _interpret_nutrient_status(soil: SoilProfile) -> NutrientStatus:
@@ -114,6 +118,7 @@ def _build_explanation(
     soil: SoilProfile,
     stcr: STCRBaseline,
     ml_used: bool,
+    evidence: EvidenceMetadata,
 ) -> Explanation:
     caveats: list[str] = []
 
@@ -137,7 +142,7 @@ def _build_explanation(
         )
     elif request.crop == Crop.RICE:
         caveats.append(
-            "Rice STCR equation is verified from 2021 PAU field validation; foundational calibration paper pending physical archival acquisition."
+            "Rice STCR equation is verified from 2021 PAU field validation and supported by Malwa multi-farm trials."
         )
 
     if not ml_used:
@@ -165,6 +170,7 @@ def _build_explanation(
         summary=summary_text,
         caveats=caveats,
         calculation_walkthrough=calc_walkthrough,
+        evidence=evidence,
         shap_top_features=None,
     )
 
@@ -249,10 +255,24 @@ async def run_pipeline(
     # Step 9 — Cost
     cost = _cost_service.calculate(products) if total_cost is None else total_cost
 
-    # Step 10 — Explanation
-    explanation = _build_explanation(request, soil, stcr, ml_used=ml_adj.model_enabled)
+    # Step 10 — Evidence metadata lookup
+    ev_dict = _validation_service.get_evidence_metadata_for_crop(
+        crop_name=request.crop.value,
+        district_name=request.district.value,
+    )
+    evidence = EvidenceMetadata(
+        evidence_status=ev_dict["evidence_status"],
+        calibration_source=ev_dict["calibration_source"],
+        validation_sources=ev_dict["validation_sources"],
+        malwa_validation_available=ev_dict["malwa_validation_available"],
+        evidence_strength=ev_dict["evidence_strength"],
+        notes=ev_dict["notes"],
+    )
 
-    # Step 11 — Machine-readable summary for frontend
+    # Step 11 — Explanation
+    explanation = _build_explanation(request, soil, stcr, ml_used=ml_adj.model_enabled, evidence=evidence)
+
+    # Step 12 — Machine-readable summary for frontend
     summary = RecommendationSummary(
         crop=request.crop,
         district=request.district,
@@ -284,6 +304,9 @@ async def run_pipeline(
             "soil_source": soil.source.value,
             "soil_status": soil.status,
             "is_lab_measured": soil.is_lab_measured,
+            "evidence_status": evidence.evidence_status,
+            "evidence_strength": evidence.evidence_strength,
+            "malwa_validation_available": evidence.malwa_validation_available,
         },
         warnings=explanation.caveats,
     )
@@ -306,12 +329,13 @@ async def run_pipeline(
         biofertilizer=biofert,
         estimated_cost_inr=cost,
         application_timing=timing,
+        evidence=evidence,
         explanation=explanation,
         pipeline_version="0.2.0-stcr-live",
         is_placeholder=is_placeholder_resp,
     )
 
-    # Step 12 — Optional DB persistence (if session provided)
+    # Step 13 — Optional DB persistence (if session provided)
     if session is not None:
         await persist_recommendation(request, response, session)
 
