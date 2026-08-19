@@ -5,12 +5,12 @@ Orchestrates the full recommendation pipeline:
 
   Farmer input
     → soil_resolution (Level A/B/C/D Fallback Hierarchy)
-    → stcr_service (Deterministic STCR Baseline)
+    → stcr_service (Deterministic STCR Baseline & Step-by-Step Arithmetic Proof)
     → ml_correction (Disabled / Additive Residual Correction)
     → fertilizer_translation (Commercial Products & Split Timing)
     → biofertilizer
     → cost_calculation (Verified Statutory/Subsidized Prices)
-    → explanation assembly
+    → explanation & recommendation summary assembly
     → optional DB persistence
     → RecommendResponse
 """
@@ -27,6 +27,7 @@ from app.schemas.response import (
     Explanation,
     FinalRecommendation,
     NutrientStatus,
+    RecommendationSummary,
     RecommendResponse,
     STCRBaseline,
 )
@@ -153,6 +154,8 @@ def _build_explanation(
     else:
         summary_text += "Nutrient calculation is unavailable / placeholder."
 
+    calc_walkthrough = [step.step_explanation for step in stcr.calculation_steps]
+
     return Explanation(
         soil_source_used=soil.source,
         soil_is_lab_measured=soil.is_lab_measured,
@@ -161,6 +164,7 @@ def _build_explanation(
         ml_used=ml_used,
         summary=summary_text,
         caveats=caveats,
+        calculation_walkthrough=calc_walkthrough,
         shap_top_features=None,
     )
 
@@ -248,6 +252,42 @@ async def run_pipeline(
     # Step 10 — Explanation
     explanation = _build_explanation(request, soil, stcr, ml_used=ml_adj.model_enabled)
 
+    # Step 11 — Machine-readable summary for frontend
+    summary = RecommendationSummary(
+        crop=request.crop,
+        district=request.district,
+        season=request.season,
+        target_yield_q_ha=stcr.target_yield_q_ha,
+        total_cost_inr_per_ha=cost,
+        recommended_products=[
+            {
+                "product_name": p.product_name,
+                "quantity_kg_per_ha": p.quantity_kg_per_ha,
+                "bags_per_ha": p.bags_per_ha,
+                "bag_size_kg": p.bag_size_kg,
+                "total_cost_inr": p.total_cost_inr,
+            }
+            for p in products
+        ],
+        nutrient_requirements={
+            "N_kg_per_ha": final.N_kg_per_ha,
+            "P2O5_kg_per_ha": final.P2O5_kg_per_ha,
+            "K2O_kg_per_ha": final.K2O_kg_per_ha,
+        },
+        soil_confidence=soil.confidence,
+        recommendation_confidence=final.confidence,
+        data_provenance={
+            "source_id": stcr.source_id,
+            "dataset_id": stcr.dataset_id,
+            "equation_version": stcr.equation_version,
+            "data_source": stcr.data_source,
+            "soil_source": soil.source.value,
+            "soil_status": soil.status,
+            "is_lab_measured": soil.is_lab_measured,
+        },
+        warnings=explanation.caveats,
+    )
+
     response = RecommendResponse(
         crop=request.crop,
         district=request.district,
@@ -257,6 +297,7 @@ async def run_pipeline(
         soil_N_kg_ha=soil.nitrogen,
         soil_P_kg_ha=soil.phosphorus,
         soil_K_kg_ha=soil.potassium,
+        summary=summary,
         nutrient_status=nutrient_status,
         stcr_baseline=stcr,
         ml_adjustment=ml_adj,
@@ -270,7 +311,7 @@ async def run_pipeline(
         is_placeholder=is_placeholder_resp,
     )
 
-    # Step 11 — Optional DB persistence (if session provided)
+    # Step 12 — Optional DB persistence (if session provided)
     if session is not None:
         await persist_recommendation(request, response, session)
 

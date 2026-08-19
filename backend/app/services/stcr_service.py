@@ -33,11 +33,11 @@ Dose Clipping:
 from __future__ import annotations
 
 import structlog
-from typing import Optional
+from typing import List, Optional
 
 from app.core.constants import Crop, District, Season
 from app.core.data_loader import STCRCoefficients, load_stcr_coefficients
-from app.schemas.response import STCRBaseline
+from app.schemas.response import CalculationStep, STCRBaseline
 from app.services.soil_resolution import SoilProfile
 
 log = structlog.get_logger(__name__)
@@ -97,10 +97,11 @@ class STCRService:
                 target_yield_q_ha=target_yield_q_ha,
                 equation_version="SKIPPED",
                 data_source="STCR skipped — soil N/P/K not available",
+                calculation_steps=[],
                 is_placeholder=True,
                 notes=(
                     f"Soil source '{soil.source.value}' did not provide complete N/P/K. "
-                    "STCR baseline cannot be computed."
+                    "STCR baseline cannot be computed safely without measured soil nutrients."
                 ),
             )
 
@@ -125,6 +126,8 @@ class STCRService:
             a_k = k_coeff.get("a", 0.95) or 0.95
             b_k = k_coeff.get("b", 0.09) or 0.09
 
+            steps: List[CalculationStep] = []
+
             if rice_residue_incorporated:
                 c_rn = n_coeff.get("c_residue", 0.77) or 0.77
                 c_rp = p_coeff.get("c_residue", 0.30) or 0.30
@@ -141,6 +144,38 @@ class STCRService:
 
                 eq_ver = "STCR-PAU-2022-WHEAT-RESIDUE"
                 notes = f"STCR wheat prescription (T={t} q/ha) with 6 t/ha rice residue on alluvial soil."
+
+                fn = max(0.0, round(raw_n, 2))
+                fp = max(0.0, round(raw_p, 2))
+                fk = max(0.0, round(raw_k, 2))
+
+                steps.append(CalculationStep(
+                    nutrient="N",
+                    equation_formula=f"FN = {a_n}*T - {b_n}*SN - {c_rn}*RRN",
+                    target_yield_q_ha=t,
+                    soil_value_kg_ha=sn,
+                    raw_calculated_dose=round(raw_n, 2),
+                    final_clipped_dose=fn,
+                    step_explanation=f"{a_n}×{t} - {b_n}×{sn} - {c_rn}×{rrn} = {raw_n:.2f} kg N/ha",
+                ))
+                steps.append(CalculationStep(
+                    nutrient="P2O5",
+                    equation_formula=f"FP2O5 = {a_p}*T - {b_p}*SP2O5 - {c_rp}*RRP2O5",
+                    target_yield_q_ha=t,
+                    soil_value_kg_ha=sp,
+                    raw_calculated_dose=round(raw_p, 2),
+                    final_clipped_dose=fp,
+                    step_explanation=f"{a_p}×{t} - {b_p}×{sp} - {c_rp}×{rrp} = {raw_p:.2f} kg P2O5/ha",
+                ))
+                steps.append(CalculationStep(
+                    nutrient="K2O",
+                    equation_formula=f"FK2O = {a_k}*T - {b_k_res}*SK2O - {c_rk}*RRK2O",
+                    target_yield_q_ha=t,
+                    soil_value_kg_ha=sk,
+                    raw_calculated_dose=round(raw_k, 2),
+                    final_clipped_dose=fk,
+                    step_explanation=f"{a_k}×{t} - {b_k_res}×{sk} - {c_rk}×{rrk} = {raw_k:.2f} kg K2O/ha",
+                ))
             else:
                 raw_n = a_n * t - b_n * sn
                 raw_p = a_p * t - b_p * sp
@@ -149,10 +184,37 @@ class STCRService:
                 eq_ver = "STCR-PAU-2022-WHEAT-NPK"
                 notes = f"STCR wheat prescription (T={t} q/ha) on alluvial soil (Singh et al., 2022)."
 
-            # Dose clipping: prevent negative fertilizer recommendations
-            fn = max(0.0, round(raw_n, 2))
-            fp = max(0.0, round(raw_p, 2))
-            fk = max(0.0, round(raw_k, 2))
+                fn = max(0.0, round(raw_n, 2))
+                fp = max(0.0, round(raw_p, 2))
+                fk = max(0.0, round(raw_k, 2))
+
+                steps.append(CalculationStep(
+                    nutrient="N",
+                    equation_formula=f"FN = {a_n}*T - {b_n}*SN",
+                    target_yield_q_ha=t,
+                    soil_value_kg_ha=sn,
+                    raw_calculated_dose=round(raw_n, 2),
+                    final_clipped_dose=fn,
+                    step_explanation=f"{a_n} × {t} - {b_n} × {sn} = {a_n*t:.2f} - {b_n*sn:.2f} = {raw_n:.2f} kg N/ha",
+                ))
+                steps.append(CalculationStep(
+                    nutrient="P2O5",
+                    equation_formula=f"FP2O5 = {a_p}*T - {b_p}*SP2O5",
+                    target_yield_q_ha=t,
+                    soil_value_kg_ha=sp,
+                    raw_calculated_dose=round(raw_p, 2),
+                    final_clipped_dose=fp,
+                    step_explanation=f"{a_p} × {t} - {b_p} × {sp} = {a_p*t:.2f} - {b_p*sp:.2f} = {raw_p:.2f} kg P2O5/ha",
+                ))
+                steps.append(CalculationStep(
+                    nutrient="K2O",
+                    equation_formula=f"FK2O = {a_k}*T - {b_k}*SK2O",
+                    target_yield_q_ha=t,
+                    soil_value_kg_ha=sk,
+                    raw_calculated_dose=round(raw_k, 2),
+                    final_clipped_dose=fk,
+                    step_explanation=f"{a_k} × {t} - {b_k} × {sk} = {a_k*t:.2f} - {b_k*sk:.2f} = {raw_k:.2f} kg K2O/ha",
+                ))
 
             return STCRBaseline(
                 N_kg_per_ha=fn,
@@ -164,6 +226,7 @@ class STCRService:
                 dataset_id="DS-ICAR-PAU-WHEAT-STCR-2022",
                 source_id="SRC-ICAR-PAU-WHEAT-STCR-2022",
                 provenance_status="verified",
+                calculation_steps=steps,
                 is_placeholder=False,
                 notes=notes,
             )
@@ -193,6 +256,36 @@ class STCRService:
             fp = max(0.0, round(raw_p, 2))
             fk = max(0.0, round(raw_k, 2))
 
+            steps = [
+                CalculationStep(
+                    nutrient="N",
+                    equation_formula=f"FN = {a_n}*T - {b_n}*SN",
+                    target_yield_q_ha=t,
+                    soil_value_kg_ha=sn,
+                    raw_calculated_dose=round(raw_n, 2),
+                    final_clipped_dose=fn,
+                    step_explanation=f"{a_n} × {t} - {b_n} × {sn} = {a_n*t:.2f} - {b_n*sn:.2f} = {raw_n:.2f} kg N/ha",
+                ),
+                CalculationStep(
+                    nutrient="P2O5",
+                    equation_formula=f"FP2O5 = {a_p}*T - {b_p}*SP",
+                    target_yield_q_ha=t,
+                    soil_value_kg_ha=sp,
+                    raw_calculated_dose=round(raw_p, 2),
+                    final_clipped_dose=fp,
+                    step_explanation=f"{a_p} × {t} - {b_p} × {sp} = {a_p*t:.2f} - {b_p*sp:.2f} = {raw_p:.2f} kg P2O5/ha",
+                ),
+                CalculationStep(
+                    nutrient="K2O",
+                    equation_formula=f"FK2O = {a_k}*T - {b_k}*SK",
+                    target_yield_q_ha=t,
+                    soil_value_kg_ha=sk,
+                    raw_calculated_dose=round(raw_k, 2),
+                    final_clipped_dose=fk,
+                    step_explanation=f"{a_k} × {t} - {b_k} × {sk} = {a_k*t:.2f} - {b_k*sk:.2f} = {raw_k:.2f} kg K2O/ha",
+                ),
+            ]
+
             return STCRBaseline(
                 N_kg_per_ha=fn,
                 P2O5_kg_per_ha=fp,
@@ -203,6 +296,7 @@ class STCRService:
                 dataset_id="DS-ICAR-PAU-RICE-TYE-INM-2021",
                 source_id="SRC-ICAR-PAU-RICE-TYE-INM-2021",
                 provenance_status="verified_application_probable_calibration",
+                calculation_steps=steps,
                 is_placeholder=False,
                 notes=(
                     f"STCR rice target-yield prescription (T={t} q/ha). "
@@ -221,6 +315,7 @@ class STCRService:
             dataset_id=None,
             source_id=None,
             provenance_status="unverified",
+            calculation_steps=[],
             is_placeholder=True,
             notes=(
                 f"STCR coefficients for {crop.value} in Malwa are not yet available. "

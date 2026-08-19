@@ -34,6 +34,18 @@ class NutrientStatus(BaseModel):
     )
 
 
+class CalculationStep(BaseModel):
+    """Detailed step-by-step arithmetic proof for a nutrient prescription."""
+
+    nutrient: str = Field(description="N | P2O5 | K2O")
+    equation_formula: str = Field(description="Algebraic formulation, e.g. 'FN = 3.78*T - 0.96*SN'")
+    target_yield_q_ha: float
+    soil_value_kg_ha: float
+    raw_calculated_dose: float
+    final_clipped_dose: float
+    step_explanation: str = Field(description="Formatted calculation string, e.g. '3.78 × 50 - 0.96 × 120 = 73.8 kg N/ha'")
+
+
 class STCRBaseline(BaseModel):
     """
     STCR (Soil Test Crop Response) fertilizer dose computed from the
@@ -61,6 +73,10 @@ class STCRBaseline(BaseModel):
     dataset_id: Optional[str] = None
     source_id: Optional[str] = None
     provenance_status: Optional[str] = None
+    calculation_steps: List[CalculationStep] = Field(
+        default_factory=list,
+        description="Step-by-step algebraic breakdown of nutrient calculations",
+    )
     is_placeholder: bool = Field(
         False,
         description="True if STCR calculation could not be performed or used unverified data",
@@ -190,7 +206,47 @@ class Explanation(BaseModel):
     ml_used: bool = False
     summary: str = ""
     caveats: List[str] = Field(default_factory=list)
+    calculation_walkthrough: List[str] = Field(
+        default_factory=list,
+        description="Programmatic explanation of how each nutrient dose was derived",
+    )
     shap_top_features: Optional[Dict[str, float]] = None
+
+
+class RecommendationSummary(BaseModel):
+    """
+    Concise machine-readable summary optimized for user interfaces.
+    """
+
+    crop: Crop
+    district: District
+    season: Season
+    target_yield_q_ha: Optional[float] = None
+    total_cost_inr_per_ha: Optional[float] = None
+    recommended_products: List[Dict[str, Any]] = Field(
+        default_factory=list,
+        description="List of products with name, bags/ha, and kg/ha",
+    )
+    nutrient_requirements: Dict[str, Optional[float]] = Field(
+        default_factory=dict,
+        description="Prescribed N, P2O5, and K2O doses in kg/ha",
+    )
+    soil_confidence: float = Field(
+        0.0,
+        description="Reliability confidence score of the input soil measurements [0, 1]",
+    )
+    recommendation_confidence: Optional[float] = Field(
+        None,
+        description="Overall pipeline confidence [0, 1]",
+    )
+    data_provenance: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="Verification identifiers, citations, and standard codes",
+    )
+    warnings: List[str] = Field(
+        default_factory=list,
+        description="Actionable cautions or limitations for the farmer",
+    )
 
 
 # ── Top-level response ─────────────────────────────────────────────────────────
@@ -219,6 +275,15 @@ class RecommendResponse(BaseModel):
     soil_K_kg_ha: Optional[float] = Field(
         None,
         description="Soil available Potassium (kg/ha) used in calculation",
+    )
+
+    summary: RecommendationSummary = Field(
+        default_factory=lambda: RecommendationSummary(
+            crop=Crop.WHEAT,
+            district=District.BATHINDA,
+            season=Season.RABI,
+        ),
+        description="Concise UI-optimized summary card",
     )
 
     nutrient_status: NutrientStatus
