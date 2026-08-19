@@ -1,10 +1,18 @@
-# Render Blueprint — single FastAPI web service.
+# Render Blueprint — single FastAPI web service (Free plan).
 # Connect the GitHub repo in the Render dashboard, then apply this blueprint
 # or create a Web Service with the same start command.
 #
+# This blueprint does not provision a Render PostgreSQL instance. Attach one
+# in the dashboard (or equivalent) and set DATABASE_URL. Use the
+# postgresql+asyncpg:// scheme the app expects; do not paste postgres://.
+#
+# Free-tier web services do not support preDeployCommand. Migrations run
+# once at process start (alembic upgrade head is idempotent). Do not run
+# Alembic in buildCommand: the build environment may not reach the database.
+#
 # Required dashboard secrets (do not commit real values):
 #   DATABASE_URL  postgresql+asyncpg://...
-#   SECRET_KEY    strong random string
+#   SECRET_KEY    strong random string (generated below if unset)
 services:
   - type: web
     name: fertilizer-rec-api
@@ -12,8 +20,7 @@ services:
     plan: free
     rootDir: .
     buildCommand: pip install -r backend/requirements.txt
-    preDeployCommand: cd backend && alembic upgrade head
-    startCommand: cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    startCommand: cd backend && alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /api/v1/health
     envVars:
       - key: PYTHON_VERSION
