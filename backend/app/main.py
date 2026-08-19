@@ -8,8 +8,9 @@ from __future__ import annotations
 from contextlib import asynccontextmanager
 
 import structlog
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from app.api.routes import health, integrations, recommend, validation
 from app.core.config import settings
@@ -68,6 +69,19 @@ def create_application() -> FastAPI:
     application.include_router(recommend.router, prefix="/api/v1", tags=["Recommend"])
     application.include_router(validation.router, prefix="/api/v1", tags=["Validation"])
     application.include_router(integrations.router, prefix="/api/v1", tags=["Integrations"])
+
+    @application.exception_handler(Exception)
+    async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+        log.error(
+            "unhandled_exception",
+            error=str(exc),
+            error_type=type(exc).__name__,
+            path=request.url.path,
+        )
+        return JSONResponse(
+            status_code=500,
+            content={"detail": "Internal server error"},
+        )
 
     return application
 

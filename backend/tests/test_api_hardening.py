@@ -174,3 +174,73 @@ class TestIntegrationFailureResilience:
         data = resp.json()
         assert data["status"] == "denied"
         assert data["access_token"] is None
+
+
+class TestProductionErrorSurfaces:
+
+    @pytest.mark.asyncio
+    async def test_recommend_unhandled_error_hides_exception_details(self, client, monkeypatch):
+        from unittest.mock import AsyncMock
+
+        from app.api.routes import recommend as recommend_route
+
+        mock_run = AsyncMock(side_effect=RuntimeError("SECRET_DB_PASSWORD=hunter2 traceback"))
+        monkeypatch.setattr(recommend_route, "run_pipeline", mock_run)
+
+        payload = {
+            "crop": "wheat",
+            "district": "Bathinda",
+            "season": "rabi",
+            "soil_source": "soil_health_card",
+            "soil": {"nitrogen": 120.0, "phosphorus": 18.0, "potassium": 180.0},
+        }
+        resp = await client.post("/api/v1/recommend", json=payload)
+        assert resp.status_code == 500
+        body = resp.text
+        assert "hunter2" not in body
+        assert "SECRET_DB_PASSWORD" not in body
+        assert "traceback" not in body.lower()
+        assert resp.json()["detail"] == "Internal server error"
+
+
+class TestProductionSettings:
+
+    def test_cors_origins_comma_separated(self, monkeypatch):
+        from app.core.config import Settings
+
+        monkeypatch.setenv("CORS_ORIGINS", "https://demo.example,http://localhost:5173")
+        monkeypatch.setenv("APP_ENV", "development")
+        monkeypatch.setenv("SECRET_KEY", "dev-only")
+        settings = Settings()
+        assert settings.CORS_ORIGINS == ["https://demo.example", "http://localhost:5173"]
+
+    def test_cors_origins_json_list(self, monkeypatch):
+        from app.core.config import Settings
+
+        monkeypatch.setenv("CORS_ORIGINS", '["https://a.example","https://b.example"]')
+        monkeypatch.setenv("APP_ENV", "development")
+        monkeypatch.setenv("SECRET_KEY", "dev-only")
+        settings = Settings()
+        assert settings.CORS_ORIGINS == ["https://a.example", "https://b.example"]
+
+    def test_production_rejects_placeholder_secret(self, monkeypatch):
+        from pydantic import ValidationError
+
+        from app.core.config import Settings
+
+        monkeypatch.setenv("APP_ENV", "production")
+        monkeypatch.setenv("SECRET_KEY", "INSECURE_DEFAULT_KEY_CHANGE_IN_PRODUCTION")
+        with pytest.raises(ValidationError):
+            Settings()
+
+    def test_postgresql_url_scheme_is_accepted(self, monkeypatch):
+        from app.core.config import Settings
+
+        monkeypatch.setenv("APP_ENV", "development")
+        monkeypatch.setenv(
+            "DATABASE_URL",
+            "postgresql+asyncpg://postgres:postgres@localhost:5432/fertilizer_rec",
+        )
+        settings = Settings()
+        assert settings.DATABASE_URL.startswith("postgresql+asyncpg://")
+        assert settings.ML_ENABLED is False

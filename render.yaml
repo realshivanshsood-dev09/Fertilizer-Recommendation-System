@@ -1,0 +1,32 @@
+# Render Blueprint — single FastAPI web service.
+# Connect the GitHub repo in the Render dashboard, then apply this blueprint
+# or create a Web Service with the same start command.
+#
+# Required dashboard secrets (do not commit real values):
+#   DATABASE_URL  postgresql+asyncpg://...
+#   SECRET_KEY    strong random string
+services:
+  - type: web
+    name: fertilizer-rec-api
+    runtime: python
+    plan: free
+    rootDir: .
+    buildCommand: pip install -r backend/requirements.txt
+    preDeployCommand: cd backend && alembic upgrade head
+    startCommand: cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+      - key: APP_ENV
+        value: production
+      - key: ML_ENABLED
+        value: "false"
+      - key: LOG_LEVEL
+        value: INFO
+      - key: CORS_ORIGINS
+        value: http://localhost:3000,http://localhost:5173
+      - key: DATABASE_URL
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true

@@ -1,9 +1,10 @@
 # SIH 2026 — Fertilizer Recommendation System
 ### Malwa Region, Punjab | Adaptive Precision Agriculture
 
-> **Status**: Phase 1 Scaffolding — Scientific placeholders clearly marked.
-> **Crops**: Wheat · Rice · Cotton
+> **Status**: Phase 10 — FastAPI backend ready for single-service deploy. ML disabled. Frontend excluded.
+> **Crops**: Wheat · Rice live STCR · Cotton placeholder
 > **Districts**: Bathinda · Mansa · Muktsar · Moga · Faridkot
+> **Integrations**: Soil Health Card and DigiLocker adapters are **mocks** (`is_mock: true`)
 
 ---
 
@@ -43,7 +44,20 @@ cd backend
 pip install -r requirements.txt
 uvicorn app.main:app --reload
 # API docs: http://localhost:8000/docs
+# Health: GET http://localhost:8000/api/v1/health
 ```
+
+SQLite is the local default. PostgreSQL is selected by setting `DATABASE_URL=postgresql+asyncpg://...`.
+
+## Production (single service)
+
+```bash
+cd backend
+alembic upgrade head
+uvicorn app.main:app --host 0.0.0.0 --port $PORT
+```
+
+See [`docs/deployment.md`](docs/deployment.md). Deploy the **full repository** (YAML data lives outside `backend/`).
 
 ## Scientific Status
 
