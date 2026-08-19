@@ -5,8 +5,8 @@ Ensures that:
   - YAML files load correctly
   - Malformed YAML is detected and raises
   - Missing required fields are detected
-  - Null scientific values are accepted as "not yet populated"
-  - Incorrect schema is rejected
+  - Verified scientific values (Wheat 2022, Rice 2021) are correctly loaded
+  - Unpopulated crops (Cotton) remain explicitly null (not fabricated)
   - The application does not silently substitute fabricated values
 """
 
@@ -99,58 +99,73 @@ class TestSTCRCoefficients:
 
     def test_load_from_project_file(self):
         """The project's stcr_coefficients.yaml should load without error."""
-        coeffs = load_stcr_coefficients()
+        coeffs = load_stcr_coefficients(reload=True)
         assert isinstance(coeffs, STCRCoefficients)
 
     def test_project_file_has_all_crops(self):
-        coeffs = load_stcr_coefficients()
+        coeffs = load_stcr_coefficients(reload=True)
         for crop in ("wheat", "rice", "cotton"):
             crop_data = coeffs.get_crop_coefficients(crop)
             assert isinstance(crop_data, dict), f"Missing crop: {crop}"
 
     def test_project_file_has_all_nutrients_per_crop(self):
-        coeffs = load_stcr_coefficients()
+        coeffs = load_stcr_coefficients(reload=True)
         for crop in ("wheat", "rice", "cotton"):
             for nutrient in ("N", "P", "K"):
                 n_data = coeffs.get_nutrient_coefficients(crop, nutrient)
                 assert isinstance(n_data, dict), f"Missing {crop}.{nutrient}"
-                # Must have the required keys (even if null)
                 assert "a" in n_data, f"Missing 'a' in {crop}.{nutrient}"
                 assert "b" in n_data, f"Missing 'b' in {crop}.{nutrient}"
-                assert "target_yield_Mg_per_ha" in n_data
-                assert "FUE" in n_data
 
-    def test_project_file_is_not_populated(self):
+    def test_project_file_is_populated_for_wheat_and_rice(self):
         """
-        Current state: all coefficients should be None (placeholder).
-        This test ensures we never silently populate with fabricated values.
+        Wheat and Rice coefficients are populated from verified Track A studies.
+        Cotton remains unpopulated.
         """
-        coeffs = load_stcr_coefficients()
-        assert coeffs.is_populated is False, (
-            "STCR coefficients appear populated — was data fabricated? "
-            "Only real PAU/ICAR values should be loaded."
-        )
+        coeffs = load_stcr_coefficients(reload=True)
+        assert coeffs.is_populated is True
+        assert coeffs.is_crop_populated("wheat") is True
+        assert coeffs.is_crop_populated("rice") is True
+        assert coeffs.is_crop_populated("cotton") is False
 
-    def test_null_coefficients_produce_none_doses(self):
-        """With null coefficients, get_nutrient_coefficients returns null fields."""
-        coeffs = load_stcr_coefficients()
-        for crop in ("wheat", "rice", "cotton"):
-            n_data = coeffs.get_nutrient_coefficients(crop, "N")
+    def test_wheat_and_rice_coefficients_match_track_a(self):
+        coeffs = load_stcr_coefficients(reload=True)
+        # Wheat
+        w_n = coeffs.get_nutrient_coefficients("wheat", "N")
+        w_p = coeffs.get_nutrient_coefficients("wheat", "P")
+        w_k = coeffs.get_nutrient_coefficients("wheat", "K")
+        assert w_n["a"] == 3.78 and w_n["b"] == 0.96
+        assert w_p["a"] == 1.54 and w_p["b"] == 0.23
+        assert w_k["a"] == 0.95 and w_k["b"] == 0.09
+
+        # Rice
+        r_n = coeffs.get_nutrient_coefficients("rice", "N")
+        r_p = coeffs.get_nutrient_coefficients("rice", "P")
+        r_k = coeffs.get_nutrient_coefficients("rice", "K")
+        assert r_n["a"] == 3.02 and r_n["b"] == 0.63
+        assert r_p["a"] == 1.78 and r_p["b"] == 8.37
+        assert r_k["a"] == 2.75 and r_k["b"] == 1.39
+
+    def test_cotton_coefficients_are_null(self):
+        """Cotton coefficients must remain null until verified data is acquired."""
+        coeffs = load_stcr_coefficients(reload=True)
+        for nutrient in ("N", "P", "K"):
+            n_data = coeffs.get_nutrient_coefficients("cotton", nutrient)
             assert n_data.get("a") is None
             assert n_data.get("b") is None
 
     def test_metadata_present(self):
-        coeffs = load_stcr_coefficients()
+        coeffs = load_stcr_coefficients(reload=True)
         meta = coeffs.metadata
         assert isinstance(meta, dict)
         assert "schema_version" in meta
 
     def test_missing_crop_returns_empty_dict(self):
-        coeffs = load_stcr_coefficients()
+        coeffs = load_stcr_coefficients(reload=True)
         assert coeffs.get_crop_coefficients("sugarcane") == {}
 
     def test_missing_nutrient_returns_empty_dict(self):
-        coeffs = load_stcr_coefficients()
+        coeffs = load_stcr_coefficients(reload=True)
         assert coeffs.get_nutrient_coefficients("wheat", "Zn") == {}
 
     def test_custom_yaml_with_real_values(self, tmp_path):
@@ -303,17 +318,15 @@ class TestYAMLSchemaValidation:
         for name in ("Bathinda", "Mansa", "Muktsar", "Moga", "Faridkot"):
             assert name in districts, f"Missing district '{name}'"
 
-    def test_no_fabricated_values_in_stcr(self):
+    def test_no_fabricated_values_in_cotton(self):
         """
-        CRITICAL: Ensure no one has silently filled in fake STCR coefficients.
-        All 'a' values must be null until real data arrives.
+        CRITICAL: Ensure cotton has not been silently filled with fake coefficients.
+        All 'a' values for cotton must be null until verified data arrives.
         """
         with open(STCR_COEFFICIENTS_PATH, "r", encoding="utf-8") as f:
             data = yaml.safe_load(f)
-        for crop in ("wheat", "rice", "cotton"):
-            for nutrient in ("N", "P", "K"):
-                a_val = data[crop][nutrient].get("a")
-                assert a_val is None, (
-                    f"{crop}.{nutrient}.a = {a_val} — this appears fabricated. "
-                    "Only real PAU/ICAR coefficients should be loaded."
-                )
+        for nutrient in ("N", "P", "K"):
+            a_val = data["cotton"][nutrient].get("a")
+            assert a_val is None, (
+                f"cotton.{nutrient}.a = {a_val} — this appears fabricated."
+            )

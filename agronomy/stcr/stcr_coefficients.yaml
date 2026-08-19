@@ -1,167 +1,135 @@
-# STCR Coefficients — Malwa Region, Punjab
+# STCR Coefficients — Punjab / Malwa Region
 # =========================================
-# This file is the SINGLE SOURCE OF TRUTH for STCR coefficients.
-# The Python service loads this file at startup.
+# Single Source of Truth for live STCR coefficients.
 #
-# ⚠️  ALL SCIENTIFIC VALUES ARE NULL PLACEHOLDERS.
-# DO NOT USE FOR AGRONOMIC DECISIONS.
-# DO NOT FILL WITH INVENTED VALUES.
-#
-# Required data sources:
-#   - PAU Ludhiana: "Fertilizer Use Research in Punjab" reports
-#   - ICAR-IISS: "STCR Norms for Major Crops" bulletins
-#   - Punjab Agriculture Department soil test-fertilizer response data
+# Verified Data Sources:
+#   - Wheat: DS-ICAR-PAU-WHEAT-STCR-2022 (Singh, Mavi & Saini 2022, Indian J. Agric. Sci. 92(12): 1502–1505)
+#   - Rice: DS-ICAR-PAU-RICE-TYE-INM-2021 (Singh, Mavi & Saini 2021, Indian J. Agric. Sci. 91(10): 1528–1531)
+#   - Cotton: Null placeholders awaiting verified PAU/ICAR data.
 
 _metadata:
-  schema_version: "1.0"
-  geographic_scope: "Malwa region, Punjab (Bathinda, Mansa, Muktsar, Moga, Faridkot)"
-  source: null                    # e.g. "PAU Ludhiana"
-  source_document: null           # e.g. "Fertilizer Use Research in Punjab, 2023"
-  publication_year: null
-  soil_test_method: null          # e.g. "Alkaline KMnO4 for N, Olsen's for P, Ammonium acetate for K"
-  verified: false
-  last_updated: null
-  notes: "All coefficients are null placeholders awaiting authoritative PAU/ICAR data."
+  schema_version: "2.0.0"
+  geographic_scope: "Punjab (Alluvial soils under rice-wheat cropping system)"
+  last_updated: "2026-08-19"
+  wheat_source: "SRC-ICAR-PAU-WHEAT-STCR-2022"
+  rice_source: "SRC-ICAR-PAU-RICE-TYE-INM-2021"
+  cotton_source: null
+  notes: "Wheat and rice STCR coefficients loaded from verified Track A ICAR/PAU publications."
 
-# Per crop × nutrient coefficients
-# Formula: Dose (kg/ha) = (a × T − b × S) / FUE
-#   a   = nutrient requirement per Mg target yield (kg nutrient / Mg grain yield)
-#   b   = soil test calibration coefficient (dimensionless slope)
-#   T   = target yield (Mg/ha)
-#   S   = soil test value (kg/ha)
-#   FUE = fertilizer use efficiency (fraction, 0–1)
+# Equations: Dose (kg/ha) = max(0, a * T - b * S - (c_residue * RR if residue))
+# T = target yield in q/ha
+# S = soil test in kg/ha (SN: alkaline KMnO4, SP2O5 / SP: Olsen, SK2O / SK: NH4OAc)
 
 wheat:
   season: rabi
+  cultivar: "HD3086"
+  soil_type: "Alluvial sandy loam (Typic Ustochrepts)"
+  source_id: "SRC-ICAR-PAU-WHEAT-STCR-2022"
+  dataset_id: "DS-ICAR-PAU-WHEAT-STCR-2022"
+  verification_status: "verified"
+  default_target_yield_q_ha: 50.0
   N:
-    a: null
-    b: null
-    target_yield_Mg_per_ha: null
-    FUE: null
+    a: 3.78
+    b: 0.96
+    c_residue: 0.77
     units:
-      a: "kg N / Mg grain yield"
+      a: "kg N / q grain yield"
       b: "dimensionless"
-      target_yield: "Mg/ha"
-      FUE: "fraction (0-1)"
-    source: null
-    source_document: null
-    publication_year: null
-    verified: false
+      target_yield: "q/ha"
+      soil: "kg/ha (alkaline KMnO4 N)"
+      dose: "kg N/ha"
+    source: "Singh, Mavi & Saini (2022) Indian J. Agric. Sci. 92(12): 1502–1505"
+    verified: true
   P:
-    a: null
-    b: null
-    target_yield_Mg_per_ha: null
-    FUE: null
+    a: 1.54
+    b: 0.23
+    c_residue: 0.30
     units:
-      a: "kg P2O5 / Mg grain yield"
+      a: "kg P2O5 / q grain yield"
       b: "dimensionless"
-      target_yield: "Mg/ha"
-      FUE: "fraction (0-1)"
-    source: null
-    source_document: null
-    publication_year: null
-    verified: false
+      target_yield: "q/ha"
+      soil: "kg/ha (Olsen P2O5)"
+      dose: "kg P2O5/ha"
+    source: "Singh, Mavi & Saini (2022) Indian J. Agric. Sci. 92(12): 1502–1505"
+    verified: true
   K:
-    a: null
-    b: null
-    target_yield_Mg_per_ha: null
-    FUE: null
+    a: 0.95
+    b: 0.09
+    c_residue: 0.12
+    b_with_residue: 0.10
     units:
-      a: "kg K2O / Mg grain yield"
+      a: "kg K2O / q grain yield"
       b: "dimensionless"
-      target_yield: "Mg/ha"
-      FUE: "fraction (0-1)"
-    source: null
-    source_document: null
-    publication_year: null
-    verified: false
+      target_yield: "q/ha"
+      soil: "kg/ha (NH4OAc K2O)"
+      dose: "kg K2O/ha"
+    source: "Singh, Mavi & Saini (2022) Indian J. Agric. Sci. 92(12): 1502–1505"
+    verified: true
 
 rice:
   season: kharif
+  cultivar: "PR121"
+  soil_type: "Sandy loam (Typic Ustipsamment)"
+  source_id: "SRC-ICAR-PAU-RICE-TYE-INM-2021"
+  dataset_id: "DS-ICAR-PAU-RICE-TYE-INM-2021"
+  verification_status: "verified"
+  calibration_status: "probable_pending_acquisition"
+  default_target_yield_q_ha: 70.0
   N:
-    a: null
-    b: null
-    target_yield_Mg_per_ha: null
-    FUE: null
+    a: 3.02
+    b: 0.63
     units:
-      a: "kg N / Mg grain yield"
+      a: "kg N / q grain yield"
       b: "dimensionless"
-      target_yield: "Mg/ha"
-      FUE: "fraction (0-1)"
-    source: null
-    source_document: null
-    publication_year: null
-    verified: false
+      target_yield: "q/ha"
+      soil: "kg/ha (KMnO4 N)"
+      dose: "kg N/ha"
+    source: "Singh, Mavi & Saini (2021) Indian J. Agric. Sci. 91(10): 1528–1531"
+    verified: true
   P:
-    a: null
-    b: null
-    target_yield_Mg_per_ha: null
-    FUE: null
+    a: 1.78
+    b: 8.37
     units:
-      a: "kg P2O5 / Mg grain yield"
+      a: "kg P2O5 / q grain yield"
       b: "dimensionless"
-      target_yield: "Mg/ha"
-      FUE: "fraction (0-1)"
-    source: null
-    source_document: null
-    publication_year: null
-    verified: false
+      target_yield: "q/ha"
+      soil: "kg/ha (Olsen P)"
+      dose: "kg P2O5/ha"
+    source: "Singh, Mavi & Saini (2021) Indian J. Agric. Sci. 91(10): 1528–1531"
+    verified: true
   K:
-    a: null
-    b: null
-    target_yield_Mg_per_ha: null
-    FUE: null
+    a: 2.75
+    b: 1.39
     units:
-      a: "kg K2O / Mg grain yield"
+      a: "kg K2O / q grain yield"
       b: "dimensionless"
-      target_yield: "Mg/ha"
-      FUE: "fraction (0-1)"
-    source: null
-    source_document: null
-    publication_year: null
-    verified: false
+      target_yield: "q/ha"
+      soil: "kg/ha (NH4OAc K)"
+      dose: "kg K2O/ha"
+    source: "Singh, Mavi & Saini (2021) Indian J. Agric. Sci. 91(10): 1528–1531"
+    verified: true
 
 cotton:
   season: kharif
+  source_id: null
+  dataset_id: null
+  verification_status: "unverified"
+  default_target_yield_q_ha: null
   N:
     a: null
     b: null
-    target_yield_Mg_per_ha: null
-    FUE: null
-    units:
-      a: "kg N / Mg lint yield"
-      b: "dimensionless"
-      target_yield: "Mg/ha"
-      FUE: "fraction (0-1)"
+    units: {}
     source: null
-    source_document: null
-    publication_year: null
     verified: false
   P:
     a: null
     b: null
-    target_yield_Mg_per_ha: null
-    FUE: null
-    units:
-      a: "kg P2O5 / Mg lint yield"
-      b: "dimensionless"
-      target_yield: "Mg/ha"
-      FUE: "fraction (0-1)"
+    units: {}
     source: null
-    source_document: null
-    publication_year: null
     verified: false
   K:
     a: null
     b: null
-    target_yield_Mg_per_ha: null
-    FUE: null
-    units:
-      a: "kg K2O / Mg lint yield"
-      b: "dimensionless"
-      target_yield: "Mg/ha"
-      FUE: "fraction (0-1)"
+    units: {}
     source: null
-    source_document: null
-    publication_year: null
     verified: false

@@ -18,6 +18,7 @@ def valid_shc_payload():
         "district": "Bathinda",
         "season": "rabi",
         "soil_source": "soil_health_card",
+        "target_yield_q_ha": 50.0,
         "soil": {
             "nitrogen": 120.0,
             "phosphorus": 18.0,
@@ -69,7 +70,6 @@ class TestHealthEndpoint:
     async def test_health_no_credentials_in_database_field(self, client):
         resp = await client.get("/api/v1/health")
         data = resp.json()
-        # Must not leak connection string with credentials
         assert "@" not in data.get("database", "")
 
 
@@ -81,25 +81,60 @@ class TestRecommendEndpoint:
         assert resp.status_code == 200
 
     @pytest.mark.asyncio
-    async def test_recommend_is_placeholder_true(self, client, valid_shc_payload):
+    async def test_recommend_wheat_stcr_computed(self, client, valid_shc_payload):
+        """Wheat recommendation returns real STCR doses from PAU 2022 dataset."""
         resp = await client.post("/api/v1/recommend", json=valid_shc_payload)
         data = resp.json()
+        assert data["is_placeholder"] is False
+        assert data["stcr_baseline"]["N_kg_per_ha"] == pytest.approx(73.8, rel=1e-2)
+        assert data["stcr_baseline"]["P2O5_kg_per_ha"] == pytest.approx(72.86, rel=1e-2)
+        assert data["stcr_baseline"]["K2O_kg_per_ha"] == pytest.approx(31.3, rel=1e-2)
+        assert data["final_recommendation"]["N_kg_per_ha"] == pytest.approx(73.8, rel=1e-2)
+
+    @pytest.mark.asyncio
+    async def test_recommend_rice_stcr_computed(self, client):
+        payload = {
+            "crop": "rice",
+            "district": "Faridkot",
+            "season": "kharif",
+            "soil_source": "soil_health_card",
+            "target_yield_q_ha": 70.0,
+            "soil": {
+                "nitrogen": 114.7,
+                "phosphorus": 10.0,
+                "potassium": 100.0,
+            },
+        }
+        resp = await client.post("/api/v1/recommend", json=payload)
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["is_placeholder"] is False
+        assert data["stcr_baseline"]["N_kg_per_ha"] == pytest.approx(139.14, rel=1e-2)
+
+    @pytest.mark.asyncio
+    async def test_recommend_cotton_remains_placeholder(self, client):
+        payload = {
+            "crop": "cotton",
+            "district": "Faridkot",
+            "season": "kharif",
+            "soil_source": "soil_health_card",
+            "soil": {
+                "nitrogen": 120.0,
+                "phosphorus": 18.0,
+                "potassium": 180.0,
+            },
+        }
+        resp = await client.post("/api/v1/recommend", json=payload)
+        assert resp.status_code == 200
+        data = resp.json()
         assert data["is_placeholder"] is True
+        assert data["stcr_baseline"]["N_kg_per_ha"] is None
 
     @pytest.mark.asyncio
     async def test_recommend_soil_source_preserved(self, client, valid_shc_payload):
         resp = await client.post("/api/v1/recommend", json=valid_shc_payload)
         data = resp.json()
         assert data["soil_source"] == "soil_health_card"
-
-    @pytest.mark.asyncio
-    async def test_recommend_stcr_doses_are_none(self, client, valid_shc_payload):
-        """STCR coefficients are placeholders — doses must be None."""
-        resp = await client.post("/api/v1/recommend", json=valid_shc_payload)
-        data = resp.json()
-        assert data["stcr_baseline"]["N_kg_per_ha"] is None
-        assert data["stcr_baseline"]["P2O5_kg_per_ha"] is None
-        assert data["stcr_baseline"]["K2O_kg_per_ha"] is None
 
     @pytest.mark.asyncio
     async def test_recommend_ml_disabled(self, client, valid_shc_payload):
@@ -113,6 +148,7 @@ class TestRecommendEndpoint:
         assert resp.status_code == 200
         data = resp.json()
         assert data["soil_source"] == "questionnaire_fallback"
+        assert data["stcr_baseline"]["N_kg_per_ha"] is None
 
     @pytest.mark.asyncio
     async def test_recommend_invalid_crop_season_returns_422(self, client, valid_shc_payload):

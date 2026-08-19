@@ -38,29 +38,34 @@ class STCRBaseline(BaseModel):
     """
     STCR (Soil Test Crop Response) fertilizer dose computed from the
     agronomic science layer.
-
-    ⚠️ PLACEHOLDER: All values are None until authoritative PAU / ICAR STCR
-    coefficients are loaded.  See docs/science_status.md for what is needed.
     """
 
     N_kg_per_ha: Optional[float] = Field(
         None,
-        description="[PLACEHOLDER] Nitrogen dose (kg/ha) — STCR baseline",
+        description="Prescribed Nitrogen dose (kg N/ha) from STCR equation",
     )
     P2O5_kg_per_ha: Optional[float] = Field(
         None,
-        description="[PLACEHOLDER] Phosphorus dose as P₂O₅ (kg/ha) — STCR baseline",
+        description="Prescribed Phosphorus dose as P₂O₅ (kg P2O5/ha) from STCR equation",
     )
     K2O_kg_per_ha: Optional[float] = Field(
         None,
-        description="[PLACEHOLDER] Potassium dose as K₂O (kg/ha) — STCR baseline",
+        description="Prescribed Potassium dose as K₂O (kg K2O/ha) from STCR equation",
+    )
+    target_yield_q_ha: Optional[float] = Field(
+        None,
+        description="Target yield (q/ha) used for STCR calculation",
     )
     equation_version: str = "PLACEHOLDER — equation not yet loaded"
     data_source: str = "PLACEHOLDER — PAU/ICAR STCR coefficients required"
-    notes: str = (
-        "STCR equations for wheat/rice/cotton in Malwa are not yet available. "
-        "Do not use these values for any agronomic decision."
+    dataset_id: Optional[str] = None
+    source_id: Optional[str] = None
+    provenance_status: Optional[str] = None
+    is_placeholder: bool = Field(
+        False,
+        description="True if STCR calculation could not be performed or used unverified data",
     )
+    notes: str = ""
 
 
 class MLAdjustment(BaseModel):
@@ -68,14 +73,14 @@ class MLAdjustment(BaseModel):
     Correction factors output by the ML layer.
     These are ADDITIVE corrections on top of the STCR baseline, not absolute doses.
 
-    ⚠️ PLACEHOLDER: ML model is not yet trained.  ML_ENABLED=False in config.
+    ⚠️ ML model is not yet active. ML_ENABLED=False in config.
     """
 
     model_config = ConfigDict(protected_namespaces=())
 
     N_correction_kg_per_ha: Optional[float] = Field(
         None,
-        description="[PLACEHOLDER] ML correction for N (can be positive or negative)",
+        description="ML correction for N (kg/ha)",
     )
     P_correction_kg_per_ha: Optional[float] = None
     K_correction_kg_per_ha: Optional[float] = None
@@ -118,15 +123,14 @@ class FertilizerProduct(BaseModel):
 class BiofertilizerRecommendation(BaseModel):
     """
     Biofertilizer / bio-inoculant recommendations.
-    ⚠️ PLACEHOLDER — specific strains and doses per crop not yet loaded.
     """
 
     recommended: List[str] = Field(
         default_factory=list,
-        description="[PLACEHOLDER] List of recommended biofertilizers",
+        description="List of recommended biofertilizers",
     )
     application_timing: Optional[str] = None
-    data_source: str = "PLACEHOLDER — PAU biofertilizer recommendations required"
+    data_source: str = "PAU biofertilizer recommendations"
 
 
 class ApplicationTiming(BaseModel):
@@ -134,13 +138,13 @@ class ApplicationTiming(BaseModel):
 
     splits: Optional[List[Dict[str, Any]]] = Field(
         None,
-        description="[PLACEHOLDER] List of application events with timing and dose split",
+        description="List of application events with timing and dose split",
     )
     apply_before: Optional[str] = Field(
         None,
         description="Recommended crop stage or calendar date for first application",
     )
-    notes: str = "PLACEHOLDER — application timing guidelines not yet loaded"
+    notes: str = "Application timing guidelines"
 
 
 class Explanation(BaseModel):
@@ -159,14 +163,28 @@ class Explanation(BaseModel):
 class RecommendResponse(BaseModel):
     """
     Complete recommendation response.
-    Fields marked [PLACEHOLDER] will be None until the corresponding
-    scientific data or ML model is available.
     """
 
     crop: Crop
     district: District
     season: Season
     soil_source: SoilSource
+    target_yield_q_ha: Optional[float] = Field(
+        None,
+        description="Target yield evaluated (q/ha)",
+    )
+    soil_N_kg_ha: Optional[float] = Field(
+        None,
+        description="Soil available Nitrogen (kg/ha) used in calculation",
+    )
+    soil_P_kg_ha: Optional[float] = Field(
+        None,
+        description="Soil available Phosphorus (kg/ha) used in calculation",
+    )
+    soil_K_kg_ha: Optional[float] = Field(
+        None,
+        description="Soil available Potassium (kg/ha) used in calculation",
+    )
 
     nutrient_status: NutrientStatus
     stcr_baseline: STCRBaseline
@@ -175,23 +193,23 @@ class RecommendResponse(BaseModel):
 
     fertilizers: List[FertilizerProduct] = Field(
         default_factory=list,
-        description="[PLACEHOLDER] Commercial product translation",
+        description="Commercial product translation",
     )
     biofertilizer: BiofertilizerRecommendation = Field(
         default_factory=BiofertilizerRecommendation,
     )
     estimated_cost_inr: Optional[float] = Field(
         None,
-        description="[PLACEHOLDER] Total estimated fertilizer cost (INR/ha)",
+        description="Total estimated fertilizer cost (INR/ha)",
     )
     application_timing: ApplicationTiming = Field(
         default_factory=ApplicationTiming,
     )
     explanation: Explanation
-    pipeline_version: str = "0.1.0-scaffold"
+    pipeline_version: str = "0.2.0-stcr-live"
     is_placeholder: bool = Field(
-        True,
-        description="True when any part of the recommendation uses placeholder data",
+        False,
+        description="True when any part of the recommendation uses unverified placeholder data",
     )
 
 

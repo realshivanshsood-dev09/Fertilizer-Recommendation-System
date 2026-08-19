@@ -98,6 +98,15 @@ class STCRCoefficients:
                     return True
         return False
 
+    def is_crop_populated(self, crop_name: str) -> bool:
+        """True when the specific crop has populated STCR coefficients."""
+        crop_data = self._data.get(crop_name, {})
+        for nutrient in ("N", "P", "K"):
+            n_data = crop_data.get(nutrient, {})
+            if n_data.get("a") is not None:
+                return True
+        return False
+
     @property
     def metadata(self) -> Dict[str, Any]:
         return self._metadata
@@ -113,7 +122,7 @@ class STCRCoefficients:
         self, crop_name: str, nutrient: str
     ) -> Dict[str, Any]:
         """
-        Returns {a, b, target_yield_Mg_per_ha, FUE} for a crop × nutrient.
+        Returns {a, b, target_yield_Mg_per_ha, FUE, ...} for a crop × nutrient.
         Returns empty dict if not found.
         """
         return self.get_crop_coefficients(crop_name).get(nutrient, {})
@@ -127,27 +136,38 @@ class STCRCoefficients:
             src = n_data.get("source")
             if src is not None:
                 return src
+        dataset_id = crop_data.get("dataset_id")
+        if dataset_id:
+            return f"{dataset_id} (PAU/ICAR)"
         return f"PLACEHOLDER — STCR coefficients for {crop_name} not yet loaded"
+
+
+_CACHED_STCR_COEFFICIENTS: Optional[STCRCoefficients] = None
 
 
 def load_stcr_coefficients(
     path: Optional[Path] = None,
+    reload: bool = False,
 ) -> STCRCoefficients:
     """
-    Load STCR coefficients from YAML.
+    Load STCR coefficients from YAML with caching.
     Returns an STCRCoefficients wrapper with safe accessors.
     """
+    global _CACHED_STCR_COEFFICIENTS
+    if path is None and _CACHED_STCR_COEFFICIENTS is not None and not reload:
+        return _CACHED_STCR_COEFFICIENTS
+
     p = path or STCR_COEFFICIENTS_PATH
     data = _load_yaml(p, "stcr_coefficients")
+    loaded = STCRCoefficients(data, p)
     log.info(
         "stcr_coefficients_loaded",
         path=str(p),
-        is_populated=any(
-            data.get(crop, {}).get("N", {}).get("a") is not None
-            for crop in ("wheat", "rice", "cotton")
-        ),
+        is_populated=loaded.is_populated,
     )
-    return STCRCoefficients(data, p)
+    if path is None:
+        _CACHED_STCR_COEFFICIENTS = loaded
+    return loaded
 
 
 # ── District Soil Averages ────────────────────────────────────────────────────
@@ -194,17 +214,28 @@ class DistrictAverages:
         }
 
 
+_CACHED_DISTRICT_AVERAGES: Optional[DistrictAverages] = None
+
+
 def load_district_averages(
     path: Optional[Path] = None,
+    reload: bool = False,
 ) -> DistrictAverages:
     """
-    Load district soil averages from YAML.
+    Load district soil averages from YAML with caching.
     Returns a DistrictAverages wrapper with safe accessors.
     """
+    global _CACHED_DISTRICT_AVERAGES
+    if path is None and _CACHED_DISTRICT_AVERAGES is not None and not reload:
+        return _CACHED_DISTRICT_AVERAGES
+
     p = path or DISTRICT_AVERAGES_PATH
     data = _load_yaml(p, "district_averages")
+    loaded = DistrictAverages(data, p)
     log.info("district_averages_loaded", path=str(p))
-    return DistrictAverages(data, p)
+    if path is None:
+        _CACHED_DISTRICT_AVERAGES = loaded
+    return loaded
 
 
 # ── Biofertilizer Recommendations ────────────────────────────────────────────
@@ -232,14 +263,25 @@ class BiofertilizerData:
         return self._crops.get(crop_name, {})
 
 
+_CACHED_BIOFERTILIZER_DATA: Optional[BiofertilizerData] = None
+
+
 def load_biofertilizer_data(
     path: Optional[Path] = None,
+    reload: bool = False,
 ) -> BiofertilizerData:
     """
-    Load biofertilizer recommendations from YAML.
+    Load biofertilizer recommendations from YAML with caching.
     Returns a BiofertilizerData wrapper with safe accessors.
     """
+    global _CACHED_BIOFERTILIZER_DATA
+    if path is None and _CACHED_BIOFERTILIZER_DATA is not None and not reload:
+        return _CACHED_BIOFERTILIZER_DATA
+
     p = path or BIOFERTILIZERS_PATH
     data = _load_yaml(p, "biofertilizers")
+    loaded = BiofertilizerData(data, p)
     log.info("biofertilizer_data_loaded", path=str(p))
-    return BiofertilizerData(data, p)
+    if path is None:
+        _CACHED_BIOFERTILIZER_DATA = loaded
+    return loaded

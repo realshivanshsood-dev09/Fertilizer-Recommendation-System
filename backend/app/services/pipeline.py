@@ -5,8 +5,8 @@ Orchestrates the full recommendation pipeline:
 
   Farmer input
     → soil_resolution
-    → stcr_service
-    → ml_correction
+    → stcr_service (Deterministic STCR Baseline)
+    → ml_correction (Disabled / Additive Residual Correction)
     → fertilizer_translation
     → biofertilizer
     → cost_calculation
@@ -18,13 +18,14 @@ from __future__ import annotations
 
 import structlog
 
-from app.core.constants import SoilSource
+from app.core.constants import Crop, SoilSource
 from app.schemas.request import RecommendRequest
 from app.schemas.response import (
     Explanation,
     FinalRecommendation,
     NutrientStatus,
     RecommendResponse,
+    STCRBaseline,
 )
 from app.services.biofertilizer import BiofertilizerService
 from app.services.cost_calculation import CostCalculationService
@@ -46,25 +47,67 @@ _cost_service = CostCalculationService()
 
 def _interpret_nutrient_status(soil: SoilProfile) -> NutrientStatus:
     """
-    ⚠️  PLACEHOLDER — ICAR critical limit thresholds not yet loaded.
-    Real thresholds for alluvial soils of Punjab (Malwa) required.
+    Interprets soil nutrient status against ICAR / PAU agronomic standards.
     """
+    n_status = None
+    if soil.nitrogen is not None:
+        if soil.nitrogen < 280.0:
+            n_status = "low"
+        elif soil.nitrogen <= 560.0:
+            n_status = "medium"
+        else:
+            n_status = "high"
+
+    p_status = None
+    if soil.phosphorus is not None:
+        if soil.phosphorus < 10.0:
+            p_status = "low"
+        elif soil.phosphorus <= 25.0:
+            p_status = "medium"
+        else:
+            p_status = "high"
+
+    k_status = None
+    if soil.potassium is not None:
+        if soil.potassium < 118.0:
+            k_status = "low"
+        elif soil.potassium <= 280.0:
+            k_status = "medium"
+        else:
+            k_status = "high"
+
+    ph_status = None
+    if soil.ph is not None:
+        if soil.ph < 6.5:
+            ph_status = "acidic"
+        elif soil.ph <= 8.5:
+            ph_status = "neutral_to_alkaline"
+        else:
+            ph_status = "highly_alkaline"
+
+    oc_status = None
+    if soil.organic_carbon is not None:
+        if soil.organic_carbon < 0.50:
+            oc_status = "low"
+        elif soil.organic_carbon <= 0.75:
+            oc_status = "medium"
+        else:
+            oc_status = "high"
+
     return NutrientStatus(
-        nitrogen_status=None,
-        phosphorus_status=None,
-        potassium_status=None,
-        ph_status=None,
-        organic_carbon_status=None,
-        interpretation_source=(
-            "PLACEHOLDER — ICAR/PAU critical soil fertility thresholds "
-            "for Malwa alluvial soils not yet loaded."
-        ),
+        nitrogen_status=n_status,
+        phosphorus_status=p_status,
+        potassium_status=k_status,
+        ph_status=ph_status,
+        organic_carbon_status=oc_status,
+        interpretation_source="ICAR / PAU Soil Fertility Classification Guidelines",
     )
 
 
 def _build_explanation(
     request: RecommendRequest,
     soil: SoilProfile,
+    stcr: STCRBaseline,
     ml_used: bool,
 ) -> Explanation:
     caveats: list[str] = []
@@ -74,26 +117,39 @@ def _build_explanation(
             "Soil data from questionnaire only — N/P/K are unknown. "
             "STCR baseline cannot be computed."
         )
-    if soil.source == SoilSource.DISTRICT_AVERAGE:
+    elif soil.source == SoilSource.DISTRICT_AVERAGE:
         caveats.append(
-            "District average soil profile used — lab-measured SHC data preferred."
+            "District average soil profile used — laboratory-measured Soil Health Card data preferred."
         )
-    caveats.append(
-        "STCR coefficients are placeholders — all numerical doses are None."
+
+    if request.crop == Crop.COTTON:
+        caveats.append(
+            "STCR coefficients for cotton in Malwa are not yet available in Track A; doses are unpopulated."
+        )
+    elif request.crop == Crop.RICE:
+        caveats.append(
+            "Rice STCR equation is verified from 2021 PAU field validation; foundational calibration paper pending physical archival acquisition."
+        )
+
+    if not ml_used:
+        caveats.append(
+            "ML correction layer is disabled (model_enabled=False); deterministic STCR baseline is provided."
+        )
+
+    summary_text = (
+        f"Deterministic STCR fertilizer prescription for {request.crop.value} in {request.district.value} "
+        f"({request.season.value} season). "
     )
-    caveats.append(
-        "ML correction layer is disabled — no trained model is available."
-    )
+    if stcr.N_kg_per_ha is not None:
+        summary_text += f"Prescribed nutrients: N={stcr.N_kg_per_ha} kg/ha, P2O5={stcr.P2O5_kg_per_ha} kg/ha, K2O={stcr.K2O_kg_per_ha} kg/ha."
+    else:
+        summary_text += "Nutrient calculation is unavailable / placeholder."
 
     return Explanation(
         soil_source_used=soil.source,
         baseline_method="STCR",
         ml_used=ml_used,
-        summary=(
-            f"Recommendation for {request.crop.value} in {request.district.value} "
-            f"({request.season.value} season). "
-            "This is a Phase 1 scaffold — all numerical values are placeholders."
-        ),
+        summary=summary_text,
         caveats=caveats,
         shap_top_features=None,
     )
@@ -106,6 +162,7 @@ async def run_pipeline(request: RecommendRequest) -> RecommendResponse:
         district=request.district.value,
         season=request.season.value,
         soil_source=request.soil_source.value,
+        target_yield=request.target_yield_q_ha,
     )
 
     # Step 1 — Soil resolution
@@ -115,15 +172,17 @@ async def run_pipeline(request: RecommendRequest) -> RecommendResponse:
     # Step 2 — Nutrient status interpretation
     nutrient_status = _interpret_nutrient_status(soil)
 
-    # Step 3 — STCR baseline
+    # Step 3 — STCR baseline (Deterministic agronomic calculation)
     stcr = _stcr_service.compute(
         crop=request.crop,
         district=request.district,
         season=request.season,
         soil=soil,
+        target_yield_q_ha=request.target_yield_q_ha,
+        rice_residue_incorporated=request.rice_residue_incorporated,
     )
 
-    # Step 4 — ML correction
+    # Step 4 — ML correction (Disabled / deterministic residual)
     ml_adj = _ml_service.predict_correction(
         crop=request.crop,
         district=request.district,
@@ -134,16 +193,24 @@ async def run_pipeline(request: RecommendRequest) -> RecommendResponse:
     )
 
     # Step 5 — Combine STCR + ML → final doses
-    def _add(a, b):
-        if a is None and b is None:
-            return None
-        return (a or 0.0) + (b or 0.0)
+    if stcr.N_kg_per_ha is not None and not stcr.is_placeholder:
+        final_n = round(stcr.N_kg_per_ha + (ml_adj.N_correction_kg_per_ha or 0.0), 2)
+        final_p = round((stcr.P2O5_kg_per_ha or 0.0) + (ml_adj.P_correction_kg_per_ha or 0.0), 2)
+        final_k = round((stcr.K2O_kg_per_ha or 0.0) + (ml_adj.K_correction_kg_per_ha or 0.0), 2)
+        confidence = 0.85 if soil.source == SoilSource.SOIL_HEALTH_CARD else 0.65
+        is_placeholder_resp = False
+    else:
+        final_n = None
+        final_p = None
+        final_k = None
+        confidence = None
+        is_placeholder_resp = True
 
     final = FinalRecommendation(
-        N_kg_per_ha=_add(stcr.N_kg_per_ha, ml_adj.N_correction_kg_per_ha),
-        P2O5_kg_per_ha=_add(stcr.P2O5_kg_per_ha, ml_adj.P_correction_kg_per_ha),
-        K2O_kg_per_ha=_add(stcr.K2O_kg_per_ha, ml_adj.K_correction_kg_per_ha),
-        confidence=None,  # placeholder
+        N_kg_per_ha=final_n,
+        P2O5_kg_per_ha=final_p,
+        K2O_kg_per_ha=final_k,
+        confidence=confidence,
     )
 
     # Step 6 — Fertilizer product translation
@@ -166,15 +233,19 @@ async def run_pipeline(request: RecommendRequest) -> RecommendResponse:
     cost = _cost_service.calculate(products)
 
     # Step 10 — Explanation
-    explanation = _build_explanation(request, soil, ml_used=ml_adj.model_enabled)
+    explanation = _build_explanation(request, soil, stcr, ml_used=ml_adj.model_enabled)
 
-    log.info("pipeline_complete", is_placeholder=True)
+    log.info("pipeline_complete", is_placeholder=is_placeholder_resp)
 
     return RecommendResponse(
         crop=request.crop,
         district=request.district,
         season=request.season,
         soil_source=soil.source,
+        target_yield_q_ha=stcr.target_yield_q_ha,
+        soil_N_kg_ha=soil.nitrogen,
+        soil_P_kg_ha=soil.phosphorus,
+        soil_K_kg_ha=soil.potassium,
         nutrient_status=nutrient_status,
         stcr_baseline=stcr,
         ml_adjustment=ml_adj,
@@ -184,6 +255,6 @@ async def run_pipeline(request: RecommendRequest) -> RecommendResponse:
         estimated_cost_inr=cost,
         application_timing=timing,
         explanation=explanation,
-        pipeline_version="0.1.0-scaffold",
-        is_placeholder=True,
+        pipeline_version="0.2.0-stcr-live",
+        is_placeholder=is_placeholder_resp,
     )

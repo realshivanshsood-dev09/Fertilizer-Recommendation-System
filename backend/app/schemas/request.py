@@ -24,32 +24,32 @@ class SoilInput(BaseModel):
     Laboratory or estimated soil measurements.
 
     IMPORTANT: All fields are optional because the source may be a questionnaire
-    rather than a Soil Health Card.  Missing values will be filled from district
-    averages or clearly marked as unavailable.  Do NOT assume null == 0.
+    rather than a Soil Health Card. Missing values will be filled from district
+    averages or clearly marked as unavailable. Do NOT assume null == 0.
     """
 
     nitrogen: Optional[float] = Field(
         None,
         ge=0,
-        le=600,
-        description="Available nitrogen (kg/ha) — Soil Health Card or lab",
+        le=1000,
+        description="Available nitrogen (kg/ha) — alkaline KMnO4 method",
     )
     phosphorus: Optional[float] = Field(
         None,
         ge=0,
-        le=100,
-        description="Available phosphorus P₂O₅ (kg/ha) — Soil Health Card or lab",
+        le=300,
+        description="Available phosphorus P₂O₅ (kg/ha) — Olsen method",
     )
     potassium: Optional[float] = Field(
         None,
         ge=0,
-        le=1000,
-        description="Available potassium K₂O (kg/ha) — Soil Health Card or lab",
+        le=1500,
+        description="Available potassium K₂O (kg/ha) — neutral 1N NH4OAc method",
     )
     ph: Optional[float] = Field(
         None,
         ge=3.0,
-        le=10.0,
+        le=10.5,
         description="Soil pH (1:2 water suspension)",
     )
     organic_carbon: Optional[float] = Field(
@@ -104,6 +104,16 @@ class RecommendRequest(BaseModel):
         ),
     )
     soil: SoilInput = Field(default_factory=SoilInput)
+    target_yield_q_ha: Optional[float] = Field(
+        None,
+        gt=0,
+        le=150,
+        description="Farmer's target grain/lint yield in quintals per hectare (q/ha)",
+    )
+    rice_residue_incorporated: bool = Field(
+        False,
+        description="True if rice residue (e.g. 6 t/ha) was incorporated before sowing wheat",
+    )
     irrigation: Optional[IrrigationType] = None
     questionnaire: Optional[QuestionnaireInput] = None
 
