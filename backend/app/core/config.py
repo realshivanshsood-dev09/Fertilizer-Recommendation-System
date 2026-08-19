@@ -20,7 +20,7 @@ class Settings(BaseSettings):
 
     # Application
     APP_ENV: str = "development"
-    APP_VERSION: str = "0.1.0"
+    APP_VERSION: str = "0.2.0"
     SECRET_KEY: str = "INSECURE_DEFAULT_KEY_CHANGE_IN_PRODUCTION"
 
     # Database
