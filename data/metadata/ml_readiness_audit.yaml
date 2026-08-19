@@ -1,0 +1,122 @@
+# ==============================================================================
+# SIH 2026 Fertilizer Recommendation System
+# PHASE 7 — ML DATA READINESS & RESPONSE DATASET AUDIT REPORT
+# ==============================================================================
+# File: data/metadata/ml_readiness_audit.yaml
+#
+# Definitive audit of all empirical datasets currently registered in Track A & B.
+# ==============================================================================
+
+_metadata:
+  audit_date: "2026-08-19"
+  auditor: "SIH 2026 Agronomic ML Validation Team"
+  status: "AUDIT_COMPLETE_ML_TRAINING_BLOCKED"
+  decision: "DO_NOT_TRAIN_ML"
+  rationale: >
+    Current empirical corpus consists entirely of treatment-mean aggregates (N=29 rows across 4 studies).
+    Zero plot-level or replicate-level rows exist in public peer-reviewed open access tables.
+    Supervised gradient boosting or neural networks cannot be trained without severe data leakage
+    and empirical over-fitting.
+
+inventory_by_dataset:
+  DS-ICAR-PAU-WHEAT-STCR-2022:
+    crop: "wheat"
+    study_id: "STUDY-PAU-WHEAT-STCR-2022"
+    source_id: "SRC-ICAR-PAU-WHEAT-STCR-2022"
+    location: "PAU Regional Research Station, Gurdaspur, Punjab"
+    granularity: "treatment_mean"
+    observation_count: 5
+    replicate_level_data: false
+    paired_soil_fert_yield: true
+    soil_variables: ["available_N", "available_P", "available_K", "pH", "organic_carbon"]
+    fertilizer_variables: ["fertilizer_N", "fertilizer_P2O5", "fertilizer_K2O", "rice_residue_t_ha"]
+    yield_variable: "grain_yield_Mg_ha"
+    source_pdf_verified: true
+    sha256: "b0b9a3848b53cf5eb662da8d5a15ae2cf2fe3462b88825c0e44eb25e6e40938f"
+    malwa_relevance: "Moderate (Alluvial Inceptisol calibration analog)"
+    suitability_classification: "VALIDATION_BENCHMARK"
+
+  DS-ICAR-PAU-RICE-TYE-INM-2021:
+    crop: "rice"
+    study_id: "STUDY-PAU-RICE-TYE-INM-2021"
+    source_id: "SRC-ICAR-PAU-RICE-TYE-INM-2021"
+    location: "PAU Regional Research Station, Gurdaspur, Punjab"
+    granularity: "treatment_mean"
+    observation_count: 5
+    replicate_level_data: false
+    paired_soil_fert_yield: true
+    soil_variables: ["available_N", "available_P", "available_K", "pH", "organic_carbon"]
+    fertilizer_variables: ["fertilizer_N", "fertilizer_P2O5", "fertilizer_K2O", "FYM_t_ha", "green_manure_t_ha"]
+    yield_variable: "grain_yield_Mg_ha"
+    source_pdf_verified: true
+    sha256: "bca3a8daae4592476d09bb39688b13cefe08cbf7f1e7a5c136365a6daae54907"
+    malwa_relevance: "Moderate (Alluvial Inceptisol calibration analog)"
+    suitability_classification: "VALIDATION_BENCHMARK"
+
+  DS-PAU-RICE-STCR-FIELD-VERIFICATION-2012:
+    crop: "rice"
+    study_id: "STUDY-PAU-RICE-STCR-VERIF-2012"
+    source_id: "SRC-PAU-RICE-STCR-FIELD-VERIFICATION-2012"
+    location: "Farmers' fields across Punjab (Bathinda, Muktsar, Ferozepur)"
+    granularity: "treatment_mean"
+    observation_count: 7
+    replicate_level_data: false
+    paired_soil_fert_yield: true
+    soil_variables: ["available_N", "available_P", "available_K"]
+    fertilizer_variables: ["fertilizer_N", "fertilizer_P2O5", "fertilizer_K2O"]
+    yield_variable: "grain_yield_q_ha"
+    source_pdf_verified: false
+    sha256: null
+    malwa_relevance: "High (Direct on-farm multilocational Malwa trial)"
+    suitability_classification: "VALIDATION_BENCHMARK"
+
+  DS-ICAR-PAU-LTFE-RICE-WHEAT-2021:
+    crop: "rice_wheat_system"
+    study_id: "STUDY-PAU-LTFE-RICE-WHEAT-2021"
+    source_id: "SRC-ICAR-PAU-LTFE-RICE-WHEAT-2021"
+    location: "PAU Long-Term Fertilizer Experiment, Ludhiana, Punjab"
+    granularity: "treatment_mean"
+    observation_count: 12 # 6 rice treatments + 6 wheat treatments
+    replicate_level_data: false
+    paired_soil_fert_yield: true
+    soil_variables: ["mineral_N", "total_N", "organic_carbon", "pH", "EC"]
+    fertilizer_variables: ["fertilizer_N", "fertilizer_P2O5", "fertilizer_K2O", "FYM_dry_weight"]
+    yield_variable: "grain_yield_Mg_ha"
+    source_pdf_verified: true
+    sha256: "c7c61744905f6c23d69ad04b9187edd4e239fafdb9fb2b149930715dfde15879"
+    malwa_relevance: "High (Central-South Punjab LTFE benchmark)"
+    suitability_classification: "VALIDATION_BENCHMARK"
+
+aggregate_metrics:
+  total_independent_studies: 4
+  total_treatment_mean_rows: 29
+  total_plot_level_rows: 0
+  total_replicate_level_rows: 0
+  observations_by_crop:
+    wheat: 11
+    rice: 18
+    cotton: 0
+  observations_by_district:
+    Ludhiana: 12
+    Gurdaspur: 10
+    Bathinda_Muktsar_Ferozepur_multilocation: 7
+
+ml_readiness_verdict:
+  status: "NOT_TRAINING_READY"
+  suitable_for_training: false
+  reason: "ML training blocked by insufficient independent paired response data."
+  minimum_data_threshold_for_ml:
+    minimum_plot_observations: 150
+    minimum_independent_sites: 5
+    minimum_unique_fertilizer_regimes: 20
+    required_crops: ["wheat", "rice", "cotton"]
+    validation_policy: "GroupKFold by study_id / site_id"
+
+ml_target_specification:
+  formulation: "Additive Bounded Residual Correction"
+  formula:
+    Delta_N: "Delta_N = N_optimal - N_STCR"
+    Delta_P2O5: "Delta_P2O5 = P_optimal - P_STCR"
+    Delta_K2O: "Delta_K2O = K_optimal - K_STCR"
+  safety_clipping_bounds: "[-30%, +30%] of deterministic STCR baseline"
+  current_status: "DEFERRED_UNTIL_DATA_THRESHOLD_MET"
