@@ -4,10 +4,10 @@ Recommendation Pipeline
 Orchestrates the full recommendation pipeline:
 
   Farmer input
-    → soil_resolution
+    → soil_resolution (Level A/B/C/D Fallback Hierarchy)
     → stcr_service (Deterministic STCR Baseline)
     → ml_correction (Disabled / Additive Residual Correction)
-    → fertilizer_translation
+    → fertilizer_translation (Commercial Products & Split Timing)
     → biofertilizer
     → cost_calculation
     → explanation assembly
@@ -112,14 +112,18 @@ def _build_explanation(
 ) -> Explanation:
     caveats: list[str] = []
 
-    if soil.source == SoilSource.QUESTIONNAIRE_FALLBACK:
+    if soil.status == "qualitative_only" or soil.source == SoilSource.QUESTIONNAIRE_FALLBACK:
         caveats.append(
             "Soil data from questionnaire only — N/P/K are unknown. "
             "STCR baseline cannot be computed."
         )
-    elif soil.source == SoilSource.DISTRICT_AVERAGE:
+    elif soil.status == "prior_estimate" or soil.source == SoilSource.DISTRICT_AVERAGE:
         caveats.append(
-            "District average soil profile used — laboratory-measured Soil Health Card data preferred."
+            "District average soil profile used — aggregate prior estimate, not directly measured on farmer's field."
+        )
+    elif soil.status == "insufficient_data":
+        caveats.append(
+            "Soil nutrients unavailable — STCR baseline skipped."
         )
 
     if request.crop == Crop.COTTON:
@@ -147,6 +151,8 @@ def _build_explanation(
 
     return Explanation(
         soil_source_used=soil.source,
+        soil_is_lab_measured=soil.is_lab_measured,
+        soil_status=soil.status,
         baseline_method="STCR",
         ml_used=ml_used,
         summary=summary_text,
@@ -165,7 +171,7 @@ async def run_pipeline(request: RecommendRequest) -> RecommendResponse:
         target_yield=request.target_yield_q_ha,
     )
 
-    # Step 1 — Soil resolution
+    # Step 1 — Soil resolution (Strict 4-level fallback)
     soil = _soil_resolver.resolve(request)
     log.debug("pipeline_step_soil_resolved", soil=repr(soil))
 
@@ -197,7 +203,7 @@ async def run_pipeline(request: RecommendRequest) -> RecommendResponse:
         final_n = round(stcr.N_kg_per_ha + (ml_adj.N_correction_kg_per_ha or 0.0), 2)
         final_p = round((stcr.P2O5_kg_per_ha or 0.0) + (ml_adj.P_correction_kg_per_ha or 0.0), 2)
         final_k = round((stcr.K2O_kg_per_ha or 0.0) + (ml_adj.K_correction_kg_per_ha or 0.0), 2)
-        confidence = 0.85 if soil.source == SoilSource.SOIL_HEALTH_CARD else 0.65
+        confidence = 0.95 if soil.is_lab_measured else 0.60
         is_placeholder_resp = False
     else:
         final_n = None
@@ -213,7 +219,7 @@ async def run_pipeline(request: RecommendRequest) -> RecommendResponse:
         confidence=confidence,
     )
 
-    # Step 6 — Fertilizer product translation
+    # Step 6 — Fertilizer product translation (Commercial products & bags/ha)
     products, _ = _translation_service.translate(
         crop=request.crop,
         N_kg_per_ha=final.N_kg_per_ha,
@@ -221,7 +227,7 @@ async def run_pipeline(request: RecommendRequest) -> RecommendResponse:
         K2O_kg_per_ha=final.K2O_kg_per_ha,
     )
 
-    # Step 7 — Application timing
+    # Step 7 — Application timing (PAU crop-stage splits)
     timing = _translation_service.get_application_timing(request.crop)
 
     # Step 8 — Biofertilizer
@@ -229,7 +235,7 @@ async def run_pipeline(request: RecommendRequest) -> RecommendResponse:
         crop=request.crop, district=request.district
     )
 
-    # Step 9 — Cost
+    # Step 9 — Cost (Nullable until official prices locked)
     cost = _cost_service.calculate(products)
 
     # Step 10 — Explanation

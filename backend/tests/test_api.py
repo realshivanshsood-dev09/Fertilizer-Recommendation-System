@@ -81,8 +81,8 @@ class TestRecommendEndpoint:
         assert resp.status_code == 200
 
     @pytest.mark.asyncio
-    async def test_recommend_wheat_stcr_computed(self, client, valid_shc_payload):
-        """Wheat recommendation returns real STCR doses from PAU 2022 dataset."""
+    async def test_recommend_wheat_stcr_and_products_computed(self, client, valid_shc_payload):
+        """Wheat recommendation returns real STCR doses and translated commercial products."""
         resp = await client.post("/api/v1/recommend", json=valid_shc_payload)
         data = resp.json()
         assert data["is_placeholder"] is False
@@ -90,6 +90,18 @@ class TestRecommendEndpoint:
         assert data["stcr_baseline"]["P2O5_kg_per_ha"] == pytest.approx(72.86, rel=1e-2)
         assert data["stcr_baseline"]["K2O_kg_per_ha"] == pytest.approx(31.3, rel=1e-2)
         assert data["final_recommendation"]["N_kg_per_ha"] == pytest.approx(73.8, rel=1e-2)
+
+        # Verify translated commercial products
+        fertilizers = data["fertilizers"]
+        assert len(fertilizers) >= 2  # DAP, MOP (and Urea if remaining N)
+        product_names = [f["product_name"] for f in fertilizers]
+        assert any("DAP" in name for name in product_names)
+        assert any("MOP" in name for name in product_names)
+
+        # Check bags and kg fields
+        for f in fertilizers:
+            assert f["quantity_kg_per_ha"] > 0
+            assert f["bags_per_ha"] > 0
 
     @pytest.mark.asyncio
     async def test_recommend_rice_stcr_computed(self, client):
@@ -110,6 +122,7 @@ class TestRecommendEndpoint:
         data = resp.json()
         assert data["is_placeholder"] is False
         assert data["stcr_baseline"]["N_kg_per_ha"] == pytest.approx(139.14, rel=1e-2)
+        assert len(data["fertilizers"]) > 0
 
     @pytest.mark.asyncio
     async def test_recommend_cotton_remains_placeholder(self, client):
@@ -129,6 +142,7 @@ class TestRecommendEndpoint:
         data = resp.json()
         assert data["is_placeholder"] is True
         assert data["stcr_baseline"]["N_kg_per_ha"] is None
+        assert data["fertilizers"] == []
 
     @pytest.mark.asyncio
     async def test_recommend_soil_source_preserved(self, client, valid_shc_payload):
@@ -149,6 +163,7 @@ class TestRecommendEndpoint:
         data = resp.json()
         assert data["soil_source"] == "questionnaire_fallback"
         assert data["stcr_baseline"]["N_kg_per_ha"] is None
+        assert data["fertilizers"] == []
 
     @pytest.mark.asyncio
     async def test_recommend_invalid_crop_season_returns_422(self, client, valid_shc_payload):

@@ -29,7 +29,7 @@ class NutrientStatus(BaseModel):
     )
     organic_carbon_status: Optional[str] = None
     interpretation_source: str = Field(
-        "PLACEHOLDER — ICAR thresholds not yet loaded",
+        "ICAR / PAU Soil Fertility Classification Guidelines",
         description="Source of the interpretation thresholds",
     )
 
@@ -113,10 +113,37 @@ class FertilizerProduct(BaseModel):
     """Translated commercial fertilizer product and quantity."""
 
     product_name: str
-    nutrient_type: str = Field(description="N | P | K | complex")
-    quantity_kg_per_ha: Optional[float] = None
+    nutrient_type: str = Field(description="N | P | K | complex | micronutrient")
+    quantity_kg_per_ha: Optional[float] = Field(
+        None,
+        description="Physical quantity of commercial product in kg/ha",
+    )
+    bags_per_ha: Optional[float] = Field(
+        None,
+        description="Standard commercial bags required per hectare",
+    )
+    bag_size_kg: Optional[float] = Field(
+        None,
+        description="Standard bag weight in kg (e.g. 45 kg for Urea, 50 kg for DAP/MOP)",
+    )
+    n_contribution_kg_ha: Optional[float] = Field(
+        None,
+        description="Nitrogen supplied by this product (kg N/ha)",
+    )
+    p2o5_contribution_kg_ha: Optional[float] = Field(
+        None,
+        description="Phosphorus supplied by this product (kg P2O5/ha)",
+    )
+    k2o_contribution_kg_ha: Optional[float] = Field(
+        None,
+        description="Potassium supplied by this product (kg K2O/ha)",
+    )
     unit_cost_inr_per_kg: Optional[float] = None
     total_cost_inr: Optional[float] = None
+    source_standards: Optional[str] = Field(
+        None,
+        description="Specification standard (e.g. Fertiliser Control Order 1985 / PAU)",
+    )
     notes: str = ""
 
 
@@ -151,6 +178,14 @@ class Explanation(BaseModel):
     """Human-readable explanation of the recommendation and its provenance."""
 
     soil_source_used: SoilSource
+    soil_is_lab_measured: bool = Field(
+        False,
+        description="True only when soil N/P/K were directly measured in a laboratory",
+    )
+    soil_status: str = Field(
+        "unknown",
+        description="measured | prior_estimate | qualitative_only | insufficient_data",
+    )
     baseline_method: str = "STCR"
     ml_used: bool = False
     summary: str = ""
