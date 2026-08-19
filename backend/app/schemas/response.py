@@ -221,6 +221,14 @@ class Explanation(BaseModel):
     )
     baseline_method: str = "STCR"
     ml_used: bool = False
+    integration_source: Optional[str] = Field(
+        None,
+        description="'shc_mock_api' | 'digilocker_mock' | None",
+    )
+    is_mock: bool = Field(
+        False,
+        description="True if recommendation used sandbox mock data",
+    )
     summary: str = ""
     caveats: List[str] = Field(default_factory=list)
     calculation_walkthrough: List[str] = Field(
@@ -329,6 +337,14 @@ class RecommendResponse(BaseModel):
     evidence: Optional[EvidenceMetadata] = Field(
         None,
         description="Agronomic calibration and Malwa verification evidence",
+    )
+    integration_source: Optional[str] = Field(
+        None,
+        description="'shc_mock_api' | 'digilocker_mock' | None",
+    )
+    is_mock: bool = Field(
+        False,
+        description="True if recommendation used demonstration mock data",
     )
     explanation: Explanation
     pipeline_version: str = "0.2.0-stcr-live"

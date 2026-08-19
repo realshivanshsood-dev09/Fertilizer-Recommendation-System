@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from app.core.constants import (
     Crop,
@@ -116,6 +116,28 @@ class RecommendRequest(BaseModel):
     )
     irrigation: Optional[IrrigationType] = None
     questionnaire: Optional[QuestionnaireInput] = None
+
+    # ── Demonstration Integration Inputs ──────────────────────────────────────
+    soil_input_mode: str = Field(
+        "manual",
+        description="Data acquisition path: 'manual' | 'shc_api' | 'digilocker'",
+    )
+    soil_health_card_number: Optional[str] = Field(
+        None,
+        description="Soil Health Card number for SHC API lookup (e.g. 'SHC-PB-BAT-2024-001')",
+    )
+    digilocker_document_id: Optional[str] = Field(
+        None,
+        description="DigiLocker document identifier (e.g. 'DOC-DL-SHC-BAT-001')",
+    )
+
+    @field_validator("soil_input_mode")
+    @classmethod
+    def validate_soil_input_mode(cls, v: str) -> str:
+        allowed = {"manual", "shc_api", "digilocker"}
+        if v not in allowed:
+            raise ValueError(f"Invalid soil_input_mode '{v}'. Expected one of: {sorted(allowed)}")
+        return v
 
     @model_validator(mode="after")
     def validate_crop_season(self) -> "RecommendRequest":

@@ -1,0 +1,145 @@
+# ==============================================================================
+# SIH 2026 Fertilizer Recommendation System
+# DEMO FIXTURE: MOCK SOIL HEALTH CARD REGISTRY
+# ==============================================================================
+# File: data/mock/shc/shc_records.yaml
+#
+# ⚠️ DEMONSTRATION / SANDBOX MOCK DATA ONLY.
+# These records simulate the schema of the Department of Agriculture & Farmers Welfare
+# Soil Health Card Portal (https://soilhealth.dac.gov.in) for hackathon evaluation.
+#
+# Rule: All records must explicitly declare is_mock: true.
+# ==============================================================================
+
+_metadata:
+  schema_version: "1.0"
+  provider: "SIH_DEMO_MOCK_SHC_GATEWAY"
+  is_mock: true
+  description: "Deterministic sandbox fixtures representing Punjab Malwa districts"
+
+records:
+  SHC-PB-BAT-2024-001:
+    card_number: "SHC-PB-BAT-2024-001"
+    farmer_identifier: "FARMER-PB-BAT-7821"
+    farmer_name: "Gurpreet Singh (Demo)"
+    state: "Punjab"
+    district: "Bathinda"
+    block: "Talwandi Sabo"
+    village: "Bhagi Wander"
+    sample_id: "SMPL-2024-09812"
+    sample_date: "2024-03-15"
+    soil_N_kg_ha: 120.0
+    soil_P_kg_ha: 18.0
+    soil_K_kg_ha: 180.0
+    pH: 7.5
+    organic_carbon: 0.45
+    electrical_conductivity: 0.35
+    source: "SIH_DEMO_MOCK_SHC"
+    verification_status: "verified_mock_record"
+    is_mock: true
+    is_complete: true
+
+  SHC-PB-MAN-2024-002:
+    card_number: "SHC-PB-MAN-2024-002"
+    farmer_identifier: "FARMER-PB-MAN-4412"
+    farmer_name: "Harjit Kaur (Demo)"
+    state: "Punjab"
+    district: "Mansa"
+    block: "Budhlada"
+    village: "Bareh"
+    sample_id: "SMPL-2024-04129"
+    sample_date: "2024-04-10"
+    soil_N_kg_ha: 110.0
+    soil_P_kg_ha: 14.0
+    soil_K_kg_ha: 160.0
+    pH: 7.8
+    organic_carbon: 0.40
+    electrical_conductivity: 0.42
+    source: "SIH_DEMO_MOCK_SHC"
+    verification_status: "verified_mock_record"
+    is_mock: true
+    is_complete: true
+
+  SHC-PB-FAR-2024-003:
+    card_number: "SHC-PB-FAR-2024-003"
+    farmer_identifier: "FARMER-PB-FAR-9102"
+    farmer_name: "Balwinder Singh (Demo)"
+    state: "Punjab"
+    district: "Faridkot"
+    block: "Kotkapura"
+    village: "Sandhwan"
+    sample_id: "SMPL-2024-08172"
+    sample_date: "2024-05-02"
+    soil_N_kg_ha: 114.7
+    soil_P_kg_ha: 10.0
+    soil_K_kg_ha: 100.0
+    pH: 8.1
+    organic_carbon: 0.42
+    electrical_conductivity: 0.28
+    source: "SIH_DEMO_MOCK_SHC"
+    verification_status: "verified_mock_record"
+    is_mock: true
+    is_complete: true
+
+  SHC-PB-MOG-2024-004:
+    card_number: "SHC-PB-MOG-2024-004"
+    farmer_identifier: "FARMER-PB-MOG-3189"
+    farmer_name: "Amrik Singh (Demo)"
+    state: "Punjab"
+    district: "Moga"
+    block: "Baghapurana"
+    village: "Rajeana"
+    sample_id: "SMPL-2024-01928"
+    sample_date: "2024-02-20"
+    soil_N_kg_ha: 130.0
+    soil_P_kg_ha: 22.0
+    soil_K_kg_ha: 195.0
+    pH: 7.3
+    organic_carbon: 0.52
+    electrical_conductivity: 0.31
+    source: "SIH_DEMO_MOCK_SHC"
+    verification_status: "verified_mock_record"
+    is_mock: true
+    is_complete: true
+
+  SHC-PB-MUK-2024-005:
+    card_number: "SHC-PB-MUK-2024-005"
+    farmer_identifier: "FARMER-PB-MUK-6523"
+    farmer_name: "Jaspreet Singh (Demo)"
+    state: "Punjab"
+    district: "Sri Muktsar Sahib"
+    block: "Malout"
+    village: "Danewala"
+    sample_id: "SMPL-2024-05519"
+    sample_date: "2024-03-28"
+    soil_N_kg_ha: 105.0
+    soil_P_kg_ha: 12.0
+    soil_K_kg_ha: 140.0
+    pH: 8.3
+    organic_carbon: 0.38
+    electrical_conductivity: 0.49
+    source: "SIH_DEMO_MOCK_SHC"
+    verification_status: "verified_mock_record"
+    is_mock: true
+    is_complete: true
+
+  SHC-PB-BAT-2024-INCOMPLETE:
+    card_number: "SHC-PB-BAT-2024-INCOMPLETE"
+    farmer_identifier: "FARMER-PB-BAT-9999"
+    farmer_name: "Incomplete Test Farmer (Demo)"
+    state: "Punjab"
+    district: "Bathinda"
+    block: "Bathinda"
+    village: "Civil Station"
+    sample_id: "SMPL-2024-09999"
+    sample_date: "2024-01-10"
+    soil_N_kg_ha: null
+    soil_P_kg_ha: null
+    soil_K_kg_ha: null
+    pH: 7.9
+    organic_carbon: 0.41
+    electrical_conductivity: 0.30
+    source: "SIH_DEMO_MOCK_SHC"
+    verification_status: "incomplete_mock_record"
+    is_mock: true
+    is_complete: false

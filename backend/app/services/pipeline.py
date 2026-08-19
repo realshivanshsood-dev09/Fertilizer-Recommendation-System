@@ -3,7 +3,8 @@ Recommendation Pipeline
 ========================
 Orchestrates the full recommendation pipeline:
 
-  Farmer input
+  Farmer input / SHC API / DigiLocker
+    → integration adapter lookup (if enabled)
     → soil_resolution (Level A/B/C/D Fallback Hierarchy)
     → stcr_service (Deterministic STCR Baseline & Step-by-Step Arithmetic Proof)
     → ml_correction (Disabled / Additive Residual Correction)
@@ -23,6 +24,8 @@ from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.constants import Crop, SoilSource
+from app.integrations.digilocker.service import DigiLockerIntegrationService
+from app.integrations.shc.service import SHCIntegrationService
 from app.schemas.request import RecommendRequest
 from app.schemas.response import (
     EvidenceMetadata,
@@ -52,6 +55,8 @@ _translation_service = FertilizerTranslationService()
 _biofertilizer_service = BiofertilizerService()
 _cost_service = CostCalculationService()
 _validation_service = ValidationSummaryService()
+_shc_integration = SHCIntegrationService()
+_digilocker_integration = DigiLockerIntegrationService()
 
 
 def _interpret_nutrient_status(soil: SoilProfile) -> NutrientStatus:
@@ -119,8 +124,15 @@ def _build_explanation(
     stcr: STCRBaseline,
     ml_used: bool,
     evidence: EvidenceMetadata,
+    integration_source: Optional[str] = None,
+    is_mock: bool = False,
 ) -> Explanation:
     caveats: list[str] = []
+
+    if is_mock:
+        caveats.append(
+            f"Soil data acquired via mock integration adapter ({integration_source}) for sandbox demonstration."
+        )
 
     if soil.status == "qualitative_only" or soil.source == SoilSource.QUESTIONNAIRE_FALLBACK:
         caveats.append(
@@ -167,6 +179,8 @@ def _build_explanation(
         soil_status=soil.status,
         baseline_method="STCR",
         ml_used=ml_used,
+        integration_source=integration_source,
+        is_mock=is_mock,
         summary=summary_text,
         caveats=caveats,
         calculation_walkthrough=calc_walkthrough,
@@ -185,8 +199,34 @@ async def run_pipeline(
         district=request.district.value,
         season=request.season.value,
         soil_source=request.soil_source.value,
+        soil_input_mode=request.soil_input_mode,
         target_yield=request.target_yield_q_ha,
     )
+
+    integration_source: Optional[str] = None
+    is_mock: bool = False
+
+    # Step 0 — Integration Ingestion (SHC API or DigiLocker)
+    if request.soil_input_mode == "shc_api" and request.soil_health_card_number:
+        shc_lookup = await _shc_integration.lookup_card(request.soil_health_card_number)
+        if shc_lookup.card:
+            request.soil.nitrogen = shc_lookup.card.soil.N_kg_ha
+            request.soil.phosphorus = shc_lookup.card.soil.P_kg_ha
+            request.soil.potassium = shc_lookup.card.soil.K_kg_ha
+            request.soil.ph = shc_lookup.card.soil.pH
+            request.soil.organic_carbon = shc_lookup.card.soil.organic_carbon
+            integration_source = "shc_mock_api"
+            is_mock = True
+    elif request.soil_input_mode == "digilocker" and request.digilocker_document_id:
+        doc_resp = await _digilocker_integration.fetch_document(request.digilocker_document_id)
+        if doc_resp.normalized_card:
+            request.soil.nitrogen = doc_resp.normalized_card.soil.N_kg_ha
+            request.soil.phosphorus = doc_resp.normalized_card.soil.P_kg_ha
+            request.soil.potassium = doc_resp.normalized_card.soil.K_kg_ha
+            request.soil.ph = doc_resp.normalized_card.soil.pH
+            request.soil.organic_carbon = doc_resp.normalized_card.soil.organic_carbon
+            integration_source = "digilocker_mock"
+            is_mock = True
 
     # Step 1 — Soil resolution (Strict 4-level fallback)
     soil = _soil_resolver.resolve(request)
@@ -270,7 +310,15 @@ async def run_pipeline(
     )
 
     # Step 11 — Explanation
-    explanation = _build_explanation(request, soil, stcr, ml_used=ml_adj.model_enabled, evidence=evidence)
+    explanation = _build_explanation(
+        request,
+        soil,
+        stcr,
+        ml_used=ml_adj.model_enabled,
+        evidence=evidence,
+        integration_source=integration_source,
+        is_mock=is_mock,
+    )
 
     # Step 12 — Machine-readable summary for frontend
     summary = RecommendationSummary(
@@ -304,6 +352,8 @@ async def run_pipeline(
             "soil_source": soil.source.value,
             "soil_status": soil.status,
             "is_lab_measured": soil.is_lab_measured,
+            "integration_source": integration_source,
+            "is_mock": is_mock,
             "evidence_status": evidence.evidence_status,
             "evidence_strength": evidence.evidence_strength,
             "malwa_validation_available": evidence.malwa_validation_available,
@@ -330,6 +380,8 @@ async def run_pipeline(
         estimated_cost_inr=cost,
         application_timing=timing,
         evidence=evidence,
+        integration_source=integration_source,
+        is_mock=is_mock,
         explanation=explanation,
         pipeline_version="0.2.0-stcr-live",
         is_placeholder=is_placeholder_resp,
@@ -339,5 +391,5 @@ async def run_pipeline(
     if session is not None:
         await persist_recommendation(request, response, session)
 
-    log.info("pipeline_complete", is_placeholder=is_placeholder_resp, total_cost=cost)
+    log.info("pipeline_complete", is_placeholder=is_placeholder_resp, total_cost=cost, is_mock=is_mock)
     return response
